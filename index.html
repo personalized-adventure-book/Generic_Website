@@ -2,55 +2,34 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Dynamic Order Form</title>
+  <title>Title Test</title>
   <style>
     body { font-family: sans-serif; padding: 2rem; }
-    form div { margin-bottom: 1rem; }
-    label { font-weight: bold; display: block; margin-bottom: 0.25rem; }
-    input { padding: 0.5rem; width: 100%; max-width: 300px; }
+    h1 { color: #333; }
   </style>
 </head>
 <body>
-  <h1>Order Form</h1>
-  <form id="order-form">
-    <!-- ← Static form skeleton: one field per sheet column -->
-    <div>
-      <label for="field1">First Name</label>
-    </div>
-    <div>
-      <label for="field2">Email</label>
-    </div>
-    <div>
-      <label for="field3">Product</label>
-    </div>
-    <div>
-      <label for="field4">Quantity</label>
-    </div>
-    <!-- …add or remove these <div> blocks so you have exactly one field per column -->
-  </form>
+  <h1 id="title">Loading…</h1>
 
   <script>
-    // 1) get ?id= from the URL (default to "1")
+    // 1) Read ?id= from URL (default 1)
     function getParam(name, def) {
       const v = new URLSearchParams(location.search).get(name);
       return v === null ? def : v;
     }
     const id = getParam("id", "1");
 
-    // 2) JSON-P callback: `rowValues` is an array of cell contents
-    function initFormFields(rowValues) {
-      rowValues.forEach((val, i) => {
-        const inp = document.getElementById("field" + (i+1));
-        if (inp) inp.value = val;   // inject your sheet’s cell into the input
-      });
+    // 2) JSON-P callback: sets the <h1> text
+    function init(data) {
+      document.getElementById("title").innerText = data.title || "No title";
     }
 
-    // 3) inject the <script> tag to fetch only that row’s data
-    ;(function(){
+    // 3) Inject the JSON-P <script>
+    (function(){
       const s = document.createElement("script");
       s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
             + "?id="       + encodeURIComponent(id)
-            + "&callback=" + "initFormFields";
+            + "&callback=" + "init";
       document.body.appendChild(s);
     })();
   </script>
