@@ -6,51 +6,55 @@
 </head>
 <body>
   <h1>Order Form</h1>
-  <form id="order-form">
-    <!-- fields get injected here -->
-  </form>
+  <form id="order-form"></form>
 
   <script>
-    // Helper: read ?id= from URL (default to 1)
+    // helper to read ?id=
     function getParam(name, def) {
-      var v = new URLSearchParams(window.location.search).get(name);
-      return v === null ? def : v;
+      var p = new URLSearchParams(location.search).get(name);
+      return p === null ? def : p;
     }
     var id = getParam("id", "1");
 
-    // JSON-P callback: build form fields
+    // callback for JSON-P
     function initFormFields(data) {
-      var form = document.getElementById("order-form");
-      form.innerHTML = "";  // clear any existing
+      var form    = document.getElementById("order-form");
+      var hdrs    = data.headers || [];
+      var vals    = data.values  || [];
+      form.innerHTML = "";  // clear
 
-      Object.keys(data).forEach(function(labelText) {
+      hdrs.forEach(function(labelText, i) {
+        var value = vals[i] || "";
+
         var wrapper = document.createElement("div");
 
-        var label = document.createElement("label");
-        label.textContent = labelText;
-        label.htmlFor = "field_" + labelText;
-        wrapper.appendChild(label);
+        // Label
+        var lbl = document.createElement("label");
+        lbl.textContent = labelText;
+        lbl.htmlFor     = "field_" + i;
+        wrapper.appendChild(lbl);
 
         wrapper.appendChild(document.createElement("br"));
 
-        var input = document.createElement("input");
-        input.type = "text";
-        input.id = "field_" + labelText;
-        input.name = labelText;
-        input.placeholder = data[labelText];
-        wrapper.appendChild(input);
+        // Input
+        var inp = document.createElement("input");
+        inp.type  = "text";
+        inp.id    = "field_" + i;
+        inp.name  = labelText;
+        inp.value = value;               // <-- set the actual cell value
+        wrapper.appendChild(inp);
 
         form.appendChild(wrapper);
       });
     }
 
-    // Inject <script> tag to fetch your Apps Script JSON-P
+    // inject the JSON-P request
     (function(){
-      var script = document.createElement("script");
-      script.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-                 + "?id=" + encodeURIComponent(id)
-                 + "&callback=initFormFields";
-      document.body.appendChild(script);
+      var s = document.createElement("script");
+      s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
+            + "?id=" + encodeURIComponent(id)
+            + "&callback=initFormFields";
+      document.body.appendChild(s);
     })();
   </script>
 </body>
