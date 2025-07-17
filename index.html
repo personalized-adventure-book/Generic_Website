@@ -1,55 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Product Order Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Custom Product Order</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    form div { margin-bottom: 1rem; }
-    input {
-      padding: 0.5rem;
-      width: 100%;
-      max-width: 300px;
+    * {
       box-sizing: border-box;
     }
-    button {
-      padding: 0.75rem 1.5rem;
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background: #4a90e2;
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 1.8rem;
+    }
+
+    footer {
+      background: #4a90e2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      margin-top: 2rem;
+      margin-bottom: 5rem;
+    }
+
+    form div {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.4rem;
       font-size: 1rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #4a90e2;
+      outline: none;
+    }
+
+    button {
+      background: #4a90e2;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #357acc;
+    }
+
+    .loading {
+      text-align: center;
+      font-style: italic;
+      color: #777;
     }
   </style>
 </head>
 <body>
-  <h1>Order Form</h1>
-  <form id="dynamic-form">
-    <!-- Fields will be injected here -->
-  </form>
-  <button type="submit" form="dynamic-form">Submit</button>
 
-  <script>
-    const id = new URLSearchParams(location.search).get("id") || "1";
+<header>
+  Personalized Product Order
+</header>
 
-    function init(fieldNames) {
-      const form = document.getElementById("dynamic-form");
-      form.innerHTML = ""; // Clear any existing content
+<main>
+  <div id="form-wrapper">
+    <p class="loading">Loading form...</p>
+  </div>
+</main>
 
-      fieldNames.forEach((name, i) => {
-        const div = document.createElement("div");
-        const input = document.createElement("input");
-        input.id = "field" + (i + 1);
-        input.name = name;
-        input.placeholder = name;
-        div.appendChild(input);
-        form.appendChild(div);
-      });
-    }
+<footer>
+  &copy; 2025 YourBrand. All rights reserved.
+</footer>
 
-    (function () {
-      const script = document.createElement("script");
-      script.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-                 + "?id=" + encodeURIComponent(id)
-                 + "&callback=init";
-      document.body.appendChild(script);
-    })();
-  </script>
+<script>
+  const id = new URLSearchParams(location.search).get("id") || "1";
+
+  function init(fields) {
+    const wrapper = document.getElementById("form-wrapper");
+    const form = document.createElement("form");
+    form.id = "dynamic-form";
+
+    fields.forEach((fieldName, i) => {
+      const fieldId = `field${i+1}`;
+
+      const div = document.createElement("div");
+
+      const label = document.createElement("label");
+      label.setAttribute("for", fieldId);
+      label.innerText = fieldName;
+
+      const input = document.createElement("input");
+      input.id = fieldId;
+      input.name = fieldName;
+      input.type = "text";
+      input.placeholder = fieldName;
+
+      div.appendChild(label);
+      div.appendChild(input);
+      form.appendChild(div);
+    });
+
+    // Submit Button
+    const submitDiv = document.createElement("div");
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "submit";
+    submitBtn.textContent = "Submit Order";
+    submitDiv.appendChild(submitBtn);
+    form.appendChild(submitDiv);
+
+    wrapper.innerHTML = ""; // Clear "Loading…" message
+    wrapper.appendChild(form);
+
+    // Optional: Handle form submission
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Form submitted! (Handle logic in JS or backend)");
+    });
+  }
+
+  (function () {
+    const script = document.createElement("script");
+    script.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
+      + "?id=" + encodeURIComponent(id)
+      + "&callback=init";
+    document.body.appendChild(script);
+  })();
+</script>
+
 </body>
 </html>
