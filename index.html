@@ -1,187 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Custom Shop</title>
+  <title>Dynamic Site</title>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; color: #333; }
     header, footer { background: #4a90e2; color: white; padding: 1rem 2rem; }
-    header nav a { margin: 0 1rem; color: white; text-decoration: none; font-weight: bold; }
-    main { padding: 2rem; max-width: 1000px; margin: auto; }
-    section { margin-bottom: 4rem; }
-    h1, h2 { color: #4a90e2; }
-    .btn-order { background: #4a90e2; color: white; border: none; padding: 0.75rem 1.5rem; font-size: 1.1rem; border-radius: 6px; cursor: pointer; }
-    .btn-order:hover { background: #357acc; }
-    form { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    form div { margin-bottom: 1.5rem; }
-    label { font-weight: bold; display: block; margin-bottom: 0.4rem; }
-    input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; }
-    .step { display: none; }
-    .step.active { display: block; }
-    .dynamic-field { margin-top: 1rem; }
-    footer { text-align: center; font-size: 0.9rem; }
-    footer a { color: white; text-decoration: underline; }
+    nav a { margin: 0 1rem; color: white; text-decoration: none; font-weight: bold; }
+    main { padding: 2rem; max-width: 900px; margin: auto; }
+    section { margin-bottom: 3rem; }
+    h2 { color: #4a90e2; }
+    .btn { background: #4a90e2; color: white; border: none; padding: 0.7rem 1.2rem; border-radius: 6px; cursor: pointer; }
+    .btn:hover { background: #357acc; }
+    label { display: block; font-weight: bold; margin-top: 1rem; }
+    input, textarea, select { width: 100%; padding: 0.7rem; margin-top: 0.3rem; border: 1px solid #ccc; border-radius: 5px; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>My Custom Shop</h1>
-  <nav>
-    <a href="#about">About</a>
-    <a href="#products">Products</a>
-    <a href="#faq">FAQ</a>
-    <a href="#order">Order</a>
-  </nav>
+  <h1 id="site-title">My Dynamic Website</h1>
+  <nav id="nav-links"></nav>
 </header>
 
-<main>
-  <section id="about">
-    <h2>About Us</h2>
-    <p id="about-text">Loading…</p>
-  </section>
-
-  <section id="products">
-    <h2>Our Products</h2>
-    <p id="products-text">Loading…</p>
-  </section>
-
-  <section id="faq">
-    <h2>FAQ</h2>
-    <p id="faq-text">Loading…</p>
-  </section>
-
-  <section id="order">
-    <h2>Place Your Order</h2>
-        <form id="dynamic-form"></form>
-  </section>
-</main>
+<main id="main-content"></main>
 
 <footer>
-  <p>&copy; 2025 My Custom Shop | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
+  <p>&copy; 2025 Dynamic Web | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
 </footer>
 
 <script>
-  const id = new URLSearchParams(location.search).get("id") || "1";
-  let allFields = [];
+const id = new URLSearchParams(location.search).get("id") || "1";
 
-    function init(row) {
-    const [about, products, faq, fieldsJson] = row;
+function init(row) {
+  let data;
+  try {
+    data = JSON.parse(row[0]);
+  } catch (e) {
+    console.error("Invalid JSON:", e);
+    return;
+  }
 
-    // Inject homepage texts
-    document.getElementById("about-text").innerText = about;
-    document.getElementById("products-text").innerText = products;
-    document.getElementById("faq-text").innerText = faq;
+  const nav = document.getElementById("nav-links");
+  const main = document.getElementById("main-content");
+  nav.innerHTML = '';
+  main.innerHTML = '';
 
-    // Parse dynamic form fields
-    let fields;
-    try {
-        fields = JSON.parse(fieldsJson);
-    } catch (e) {
-        console.error("Invalid JSON in spreadsheet:", e);
-        return;
+  data.sections.forEach(section => {
+    // Build nav
+    const navLink = document.createElement("a");
+    navLink.href = "#" + section.id;
+    navLink.innerText = section.title;
+    nav.appendChild(navLink);
+
+    // Build section
+    const sec = document.createElement("section");
+    sec.id = section.id;
+
+    const h2 = document.createElement("h2");
+    h2.innerText = section.title;
+    sec.appendChild(h2);
+
+    if (section.content) {
+      const p = document.createElement("p");
+      p.innerText = section.content;
+      sec.appendChild(p);
     }
 
-    const form = document.getElementById("dynamic-form");
-    form.innerHTML = ""; // Clear default content
+    if (section.form) {
+      const form = document.createElement("form");
+      form.onsubmit = e => { e.preventDefault(); alert("Form submitted!"); };
 
-    fields.forEach((f, i) => {
-        const div = document.createElement("div");
-
+      section.form.forEach(field => {
         const label = document.createElement("label");
-        label.innerText = f.label || f.name;
-        label.htmlFor = "field_" + i;
-
-        let input;
-        if (f.type === "select") {
-        input = document.createElement("select");
-        (f.options || []).forEach(opt => {
-            const o = document.createElement("option");
-            o.value = opt;
-            o.text = opt;
-            input.appendChild(o);
-        });
-        } else {
-        input = document.createElement("input");
-        input.type = f.type || "text";
-        }
-
-        input.name = f.name;
-        input.id = "field_" + i;
-
-        div.appendChild(label);
-        div.appendChild(input);
-        form.appendChild(div);
-    });
-
-    // Submit button
-    const btn = document.createElement("button");
-    btn.type = "submit";
-    btn.className = "btn-order";
-    btn.textContent = "Submit Order";
-    form.appendChild(btn);
-    }
-  function renderFields() {
-    const product = document.getElementById("product").value;
-    const container = document.getElementById("dynamic-fields");
-    container.innerHTML = "";
-
-    allFields
-      .filter(f => f.product === product)
-      .forEach((field, i) => {
-        const div = document.createElement("div");
-        div.className = "dynamic-field";
-
-        const label = document.createElement("label");
+        label.htmlFor = field.name;
         label.innerText = field.label;
-        label.htmlFor = "field" + i;
+        form.appendChild(label);
 
         let input;
         if (field.type === "select") {
           input = document.createElement("select");
-          input.name = field.label;
-          input.id = "field" + i;
           (field.options || []).forEach(opt => {
             const option = document.createElement("option");
             option.value = opt;
             option.innerText = opt;
             input.appendChild(option);
           });
+        } else if (field.type === "textarea") {
+          input = document.createElement("textarea");
         } else {
           input = document.createElement("input");
           input.type = field.type || "text";
-          input.name = field.label;
-          input.id = "field" + i;
-          input.placeholder = field.label;
         }
-
-        div.appendChild(label);
-        div.appendChild(input);
-        container.appendChild(div);
+        input.name = field.name;
+        input.id = field.name;
+        form.appendChild(input);
       });
-  }
 
-  function nextStep() {
-    document.querySelector(".step-1").classList.remove("active");
-    document.querySelector(".step-2").classList.add("active");
-  }
+      const submit = document.createElement("button");
+      submit.type = "submit";
+      submit.className = "btn";
+      submit.innerText = "Submit";
+      form.appendChild(submit);
+      sec.appendChild(form);
+    }
 
-  function prevStep() {
-    document.querySelector(".step-2").classList.remove("active");
-    document.querySelector(".step-1").classList.add("active");
-  }
+    main.appendChild(sec);
+  });
+}
 
-  // Load Google Apps Script Data
-  (function () {
-    const s = document.createElement("script");
-    s.src =
-      "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec" +
-      "?id=" + encodeURIComponent(id) +
-      "&callback=init";
-    document.body.appendChild(s);
-  })();
+// Load JSON-P
+(function () {
+  const s = document.createElement("script");
+  s.src = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"
+        + "?id=" + encodeURIComponent(id)
+        + "&callback=init";
+  document.body.appendChild(s);
+})();
 </script>
 
 </body>
