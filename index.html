@@ -30,6 +30,86 @@
 <script>
 const id = new URLSearchParams(location.search).get("id") || "1";
 
+// Load Form Data (Second Column of the Same Row)
+function startForm(formDataRaw) {
+  let data;
+  try {
+    data = JSON.parse(formDataRaw);
+  } catch (e) {
+    console.error("Invalid form JSON:", e);
+    return;
+  }
+
+  const steps = data.steps || [];
+  if (!steps.length) return;
+
+  const main = document.getElementById("main-content");
+  main.innerHTML = ""; // Clear homepage content
+
+  let currentStep = 0;
+
+  function renderStep(stepIndex) {
+    const step = steps[stepIndex];
+    main.innerHTML = `<h2>${step.title}</h2>`;
+
+    const form = document.createElement("form");
+    form.onsubmit = e => {
+      e.preventDefault();
+      if (stepIndex < steps.length - 1) {
+        currentStep++;
+        renderStep(currentStep);
+      } else {
+        alert("Form complete! Submitting...");
+        // Submit logic here
+      }
+    };
+
+    (step.fields || []).forEach(field => {
+      const label = document.createElement("label");
+      label.htmlFor = field.name;
+      label.innerText = field.label;
+      form.appendChild(label);
+
+      let input;
+      if (field.type === "select") {
+        input = document.createElement("select");
+        (field.options || []).forEach(opt => {
+          const option = document.createElement("option");
+          option.value = opt;
+          option.innerText = opt;
+          input.appendChild(option);
+        });
+      } else if (field.type === "textarea") {
+        input = document.createElement("textarea");
+      } else if (field.type === "range") {
+        input = document.createElement("input");
+        input.type = "range";
+        input.min = field.min || 1;
+        input.max = field.max || 100;
+        input.value = field.default || input.min;
+      } else {
+        input = document.createElement("input");
+        input.type = field.type;
+        if (field.maxLength) input.maxLength = field.maxLength;
+      }
+      input.id = input.name = field.name;
+      input.required = !!field.required;
+      form.appendChild(input);
+    });
+
+    const nextBtn = document.createElement("button");
+    nextBtn.type = "submit";
+    nextBtn.innerText = stepIndex < steps.length - 1 ? "Next" : "Submit";
+    nextBtn.className = "btn";
+    form.appendChild(nextBtn);
+
+    main.appendChild(form);
+  }
+
+  renderStep(currentStep);
+}
+
+
 function init(row) {
   if (!row || !row.length || typeof row[0] !== "string") {
     console.error("No valid data returned from Sheet.");
@@ -111,6 +191,18 @@ function init(row) {
     <p>${footer.description || ""}</p>
     <p>${footer.copyright || "© 2025 Dynamic Web. All rights reserved."}</p>
   `;
+
+  const startButton = document.querySelector(".btn");
+  if (startButton) {
+    startButton.onclick = () => {
+      if (typeof row[1] === "string") {
+        startForm(row[1]);
+      } else {
+        alert("Form data is not available.");
+      }
+    };
+  }
+
 }
 
 // Load JSON-P from Google Apps Script
