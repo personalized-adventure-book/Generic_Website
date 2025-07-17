@@ -61,7 +61,7 @@
     // 3) inject JSON-P <script> to fetch only that row’s data
     ;(function(){
       const s = document.createElement("script");
-      s.src = "YOUR_DEPLOY_URL"
+      s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
             + "?id=" + encodeURIComponent(id)
             + "&callback=initFormFields";
       document.body.appendChild(s);
