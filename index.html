@@ -88,17 +88,25 @@
 
   // ✅ 2. Your init() function goes here
 function init(row) {
+  if (!Array.isArray(row) || row.length < 3) {
+    alert("Invalid data from sheet");
+    return;
+  }
+
   const [about, products, faq, ...formFields] = row;
 
-  // Inject homepage sections
   document.getElementById("about-text").innerText = about;
   document.getElementById("products-text").innerText = products;
   document.getElementById("faq-text").innerText = faq;
 
-  // Inject fields into the product details step only
   const step2 = document.querySelector(".step-2");
 
+  // Insert custom fields just above the "Back" button
+  const insertBeforeBtn = step2.querySelector('button[type="button"]');
+
   formFields.forEach((field, i) => {
+    if (!field) return;
+
     const div = document.createElement("div");
 
     const label = document.createElement("label");
@@ -113,8 +121,8 @@ function init(row) {
 
     div.appendChild(label);
     div.appendChild(input);
-    // insert before the Back button
-    step2.insertBefore(div, step2.querySelector("button"));
+
+    step2.insertBefore(div, insertBeforeBtn);
   });
 }
   // ✅ 3. Inject the JSON-P script
