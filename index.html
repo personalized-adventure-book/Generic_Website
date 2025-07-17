@@ -67,12 +67,14 @@ function startForm(formDataRaw) {
 
         // Submit to GAS
         fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=${id}`, {
-  method: "POST",
-  redirect: "follow",
-  headers: {
-    "Content-Type": "text/plain;charset=utf-8"
-  },
-  body: JSON.stringify(formData)
+            method: "POST",
+            redirect: "follow",
+            mode: "no-cors",
+            keepalive: true,
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },      
+            body: JSON.stringify({ test: "hello" })
         })
         .then(r => r.text())
         .then(r => {
