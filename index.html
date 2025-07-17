@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Dynamic Site</title>
+  <title>Personalized Adventure Book</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; color: #333; }
     header, footer { background: #4a90e2; color: white; padding: 1rem 2rem; }
@@ -19,14 +19,14 @@
 <body>
 
 <header>
-  <h1 id="site-title">My Dynamic Website</h1>
+  <h1 id="site-title">Personalized Adventure Book</h1>
   <nav id="nav-links"></nav>
 </header>
 
 <main id="main-content"></main>
 
 <footer>
-  <p>&copy; 2025 Dynamic Web | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
+  <p id="footer-copyright"></p>
 </footer>
 
 <script>
@@ -48,78 +48,76 @@ function init(row) {
 
   const nav = document.getElementById("nav-links");
   const main = document.getElementById("main-content");
+  const footer = document.getElementById("footer-copyright");
   nav.innerHTML = '';
   main.innerHTML = '';
 
-  data.sections.forEach(section => {
-    // Build nav
+  function addSection(id, title, contentHTML) {
     const navLink = document.createElement("a");
-    navLink.href = "#" + section.id;
-    navLink.innerText = section.title;
+    navLink.href = `#${id}`;
+    navLink.innerText = title;
     nav.appendChild(navLink);
 
-    // Build section
     const sec = document.createElement("section");
-    sec.id = section.id;
-
+    sec.id = id;
     const h2 = document.createElement("h2");
-    h2.innerText = section.title;
+    h2.innerText = title;
     sec.appendChild(h2);
-
-    if (section.content) {
-      const p = document.createElement("p");
-      p.innerText = section.content;
-      sec.appendChild(p);
-    }
-
-    if (section.form) {
-      const form = document.createElement("form");
-      form.onsubmit = e => { e.preventDefault(); alert("Form submitted!"); };
-
-      section.form.forEach(field => {
-        const label = document.createElement("label");
-        label.htmlFor = field.name;
-        label.innerText = field.label;
-        form.appendChild(label);
-
-        let input;
-        if (field.type === "select") {
-          input = document.createElement("select");
-          (field.options || []).forEach(opt => {
-            const option = document.createElement("option");
-            option.value = opt;
-            option.innerText = opt;
-            input.appendChild(option);
-          });
-        } else if (field.type === "textarea") {
-          input = document.createElement("textarea");
-        } else {
-          input = document.createElement("input");
-          input.type = field.type || "text";
-        }
-        input.name = field.name;
-        input.id = field.name;
-        form.appendChild(input);
-      });
-
-      const submit = document.createElement("button");
-      submit.type = "submit";
-      submit.className = "btn";
-      submit.innerText = "Submit";
-      form.appendChild(submit);
-      sec.appendChild(form);
-    }
-
+    if (contentHTML) sec.innerHTML += contentHTML;
     main.appendChild(sec);
-  });
+  }
+
+  addSection("hero", data.hero.title, `
+    <p><strong>${data.hero.badge}</strong></p>
+    <p>${data.hero.subtitle}</p>
+    <button class="btn">${data.hero.cta_buttons.primary}</button>
+    <button class="btn">${data.hero.cta_buttons.secondary}</button>
+  `);
+
+  addSection("features", "Features", data.features.map(f => `
+    <div><strong>${f.title}</strong>: ${f.description}</div>
+  `).join(""));
+
+  addSection("adventures", data.adventure_possibilities.title, `
+    <p>${data.adventure_possibilities.subtitle}</p>
+    ${data.adventure_possibilities.options.map(opt => `
+      <div><strong>${opt.title}</strong>: ${opt.description}</div>
+    `).join("")}
+  `);
+
+  addSection("examples", data.book_examples.title, `
+    <p>${data.book_examples.subtitle}</p>
+    ${data.book_examples.examples.filter(e => e.title).map(e => `
+      <div><strong>${e.title}</strong><br>${e.subtitle}<br>${e.adventure}<br><em>${e.preview}</em></div>
+    `).join("")}
+  `);
+
+  addSection("how", data.how_it_works.title, `
+    <p>${data.how_it_works.subtitle}</p>
+    <ol>${data.how_it_works.steps.map(step => `<li><strong>${step.title}</strong>: ${step.description}</li>`).join("")}</ol>
+  `);
+
+  addSection("options", data.book_options.title, `
+    <p>${data.book_options.subtitle}</p>
+    ${data.book_options.types.map(t => `
+      <div><strong>${t.name}</strong> (${t.price})<br>${t.description}<br>${(t.badge || '')}<br>
+      ${t.features.map(f => `<li>${f}</li>`).join("")}</div>
+    `).join("")}
+  `);
+
+  addSection("cta", data.ready_cta.title, `
+    <p>${data.ready_cta.subtitle}</p>
+    <button class="btn">${data.ready_cta.button}</button>
+  `);
+
+  footer.innerText = data.footer?.copyright || "";
 }
 
-// Load JSON-P
 (function () {
   const s = document.createElement("script");
   s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-        + "?id=" + encodeURIComponent(id)
-        + "&callback=init";
+          + "?id=" + encodeURIComponent(id)
+          + "&callback=init";
   document.body.appendChild(s);
 })();
 </script>
