@@ -66,7 +66,7 @@ function startForm(formDataRaw) {
         });
 
         // Submit to GAS
-        fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=${id}`, {
+        fetch(`https://script.google.com/macros/s/AKfycbyUMrzt00F9K9qNwedqO43LoY26MREwdp-SVfF4JLVFqYqTiKUa5oStVLrjQ44f81ylEQ/exec?id=${id}`, {
             method: "POST",
             redirect: "follow",
             mode: "no-cors",
@@ -233,7 +233,7 @@ function init(row) {
 // Load JSON-P from Google Apps Script
 (function () {
   const s = document.createElement("script");
-  s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
+  s.src = "https://script.google.com/macros/s/AKfycbyUMrzt00F9K9qNwedqO43LoY26MREwdp-SVfF4JLVFqYqTiKUa5oStVLrjQ44f81ylEQ/exec"
         + "?id=" + encodeURIComponent(id)
         + "&callback=init";
   document.body.appendChild(s);
