@@ -55,35 +55,7 @@
 
   <section id="order">
     <h2>Place Your Order</h2>
-    <form id="order-form">
-      <div class="step step-1 active">
-        <h3>Step 1: Personal Information</h3>
-        <div>
-          <label for="name">Full Name</label>
-          <input type="text" id="name" name="name" required />
-        </div>
-        <div>
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required />
-        </div>
-        <button type="button" class="btn-order" onclick="nextStep()">Next</button>
-      </div>
-
-      <div class="step step-2">
-        <h3>Step 2: Product Customization</h3>
-        <div>
-          <label for="product">Choose Product</label>
-          <select id="product" name="product">
-            <option value="book">Personalized Adventure Book</option>
-            <option value="button">Custom Button</option>
-          </select>
-        </div>
-        <div id="dynamic-fields"></div>
-
-        <button type="button" class="btn-order" onclick="prevStep()">Back</button>
-        <button type="submit" class="btn-order">Submit</button>
-      </div>
-    </form>
+        <form id="dynamic-form"></form>
   </section>
 </main>
 
@@ -95,24 +67,62 @@
   const id = new URLSearchParams(location.search).get("id") || "1";
   let allFields = [];
 
-  function init(row) {
-    const [about, products, faq, fieldJson] = row;
+    function init(row) {
+    const [about, products, faq, fieldsJson] = row;
 
+    // Inject homepage texts
     document.getElementById("about-text").innerText = about;
     document.getElementById("products-text").innerText = products;
     document.getElementById("faq-text").innerText = faq;
 
+    // Parse dynamic form fields
+    let fields;
     try {
-      allFields = JSON.parse(fieldJson);
+        fields = JSON.parse(fieldsJson);
     } catch (e) {
-      console.error("Invalid JSON in sheet:", e);
-      return;
+        console.error("Invalid JSON in spreadsheet:", e);
+        return;
     }
 
-    document.getElementById("product").addEventListener("change", renderFields);
-    renderFields();
-  }
+    const form = document.getElementById("dynamic-form");
+    form.innerHTML = ""; // Clear default content
 
+    fields.forEach((f, i) => {
+        const div = document.createElement("div");
+
+        const label = document.createElement("label");
+        label.innerText = f.label || f.name;
+        label.htmlFor = "field_" + i;
+
+        let input;
+        if (f.type === "select") {
+        input = document.createElement("select");
+        (f.options || []).forEach(opt => {
+            const o = document.createElement("option");
+            o.value = opt;
+            o.text = opt;
+            input.appendChild(o);
+        });
+        } else {
+        input = document.createElement("input");
+        input.type = f.type || "text";
+        }
+
+        input.name = f.name;
+        input.id = "field_" + i;
+
+        div.appendChild(label);
+        div.appendChild(input);
+        form.appendChild(div);
+    });
+
+    // Submit button
+    const btn = document.createElement("button");
+    btn.type = "submit";
+    btn.className = "btn-order";
+    btn.textContent = "Submit Order";
+    form.appendChild(btn);
+    }
   function renderFields() {
     const product = document.getElementById("product").value;
     const container = document.getElementById("dynamic-fields");
