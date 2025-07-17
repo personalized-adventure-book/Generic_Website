@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dynamic Order Form</title>
+</head>
+<body>
+  <h1>Order Form</h1>
+  <form id="order-form">
+    <div>
+      <label id="label1" for="input1"></label><br>
+      <input id="input1" type="text" name="" />
+    </div>
+    <!-- you can add more fields here, just increment the IDs -->
+  </form>
+
+  <script>
+    // 1. read ?id= from URL (defaults to 1)
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+    var id = getParam("id") || "1";
+
+    // 2. JSON-P callback to populate fields
+    function initFormFields(data) {
+      // data is a map: { "First Name": "Your First Name", ... }
+      var keys = Object.keys(data);
+      keys.forEach(function(k,i){
+        var lbl = document.getElementById("label"+(i+1));
+        var inp = document.getElementById("input"+(i+1));
+        if (!lbl || !inp) return;
+        lbl.textContent      = k;
+        inp.name             = k;
+        inp.placeholder      = data[k];
+      });
+    }
+
+    // 3. inject <script> to call your Apps Script with callback
+    (function(){
+      var s = document.createElement("script");
+      s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
+            + "?id=" + id
+            + "&callback=initFormFields";
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
