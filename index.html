@@ -2,50 +2,53 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Form Test</title>
+  <title>Product Order Form</title>
   <style>
     body { font-family: sans-serif; padding: 2rem; }
+    form div { margin-bottom: 1rem; }
     input {
       padding: 0.5rem;
-      margin-bottom: 1rem;
       width: 100%;
       max-width: 300px;
       box-sizing: border-box;
     }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Dynamic Form</h1>
-  <form id="form">
-    <input id="field1" name="field1" placeholder="Field 1" />
-    <input id="field2" name="field2" placeholder="Field 2" />
-    <input id="field3" name="field3" placeholder="Field 3" />
-    <input id="field4" name="field4" placeholder="Field 4" />
+  <h1>Order Form</h1>
+  <form id="dynamic-form">
+    <!-- Fields will be injected here -->
   </form>
+  <button type="submit" form="dynamic-form">Submit</button>
 
   <script>
-    function getParam(name, def) {
-      const v = new URLSearchParams(location.search).get(name);
-      return v === null ? def : v;
-    }
-    const id = getParam("id", "1");
+    const id = new URLSearchParams(location.search).get("id") || "1";
 
-    // ✅ MATCHES THE ARRAY FORMAT YOU RETURN
-    function init(dataArray) {
-      dataArray.forEach((val, i) => {
-        const input = document.getElementById("field" + (i + 1));
-        if (input) {
-          input.value = val;
-        }
+    function init(fieldNames) {
+      const form = document.getElementById("dynamic-form");
+      form.innerHTML = ""; // Clear any existing content
+
+      fieldNames.forEach((name, i) => {
+        const div = document.createElement("div");
+        const input = document.createElement("input");
+        input.id = "field" + (i + 1);
+        input.name = name;
+        input.placeholder = name;
+        div.appendChild(input);
+        form.appendChild(div);
       });
     }
 
     (function () {
-      const s = document.createElement("script");
-      s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-        + "?id=" + encodeURIComponent(id)
-        + "&callback=init";
-      document.body.appendChild(s);
+      const script = document.createElement("script");
+      script.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
+                 + "?id=" + encodeURIComponent(id)
+                 + "&callback=init";
+      document.body.appendChild(script);
     })();
   </script>
 </body>
