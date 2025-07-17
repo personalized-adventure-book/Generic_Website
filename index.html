@@ -13,57 +13,48 @@
 <body>
   <h1>Order Form</h1>
   <form id="order-form">
-    <!-- static skeleton: one field per column -->
+    <!-- ← Static form skeleton: one field per sheet column -->
     <div>
-      <label id="label1" for="field1">Field 1</label>
-      <input id="field1" name="field1" type="text" />
+      <label for="field1">First Name</label>
+      <input id="field1" name="firstName" type="text" />
     </div>
     <div>
-      <label id="label2" for="field2">Field 2</label>
-      <input id="field2" name="field2" type="text" />
+      <label for="field2">Email</label>
+      <input id="field2" name="email" type="email" />
     </div>
     <div>
-      <label id="label3" for="field3">Field 3</label>
-      <input id="field3" name="field3" type="text" />
+      <label for="field3">Product</label>
+      <input id="field3" name="product" type="text" />
     </div>
     <div>
-      <label id="label4" for="field4">Field 4</label>
-      <input id="field4" name="field4" type="text" />
+      <label for="field4">Quantity</label>
+      <input id="field4" name="quantity" type="number" />
     </div>
-    <!-- add/remove these <div>s so you have one per sheet column -->
+    <!-- …add or remove these <div> blocks so you have exactly one field per column -->
   </form>
 
   <script>
-    // 1) read ?id= from URL (default to "1")
+    // 1) get ?id= from the URL (default to "1")
     function getParam(name, def) {
       const v = new URLSearchParams(location.search).get(name);
       return v === null ? def : v;
     }
     const id = getParam("id", "1");
 
-    // 2) JSON-P callback: payload is an array of cell values for row “id”
+    // 2) JSON-P callback: `rowValues` is an array of cell contents
     function initFormFields(rowValues) {
       rowValues.forEach((val, i) => {
-        // overwrite label text
-        const lbl = document.getElementById("label" + (i+1));
-        if (lbl) lbl.textContent = val;
-
-        // update input name (and clear value)
         const inp = document.getElementById("field" + (i+1));
-        if (inp) {
-          inp.name  = val;
-          inp.value = "";      // you can set placeholder instead if preferred
-          inp.placeholder = "";
-        }
+        if (inp) inp.value = val;   // inject your sheet’s cell into the input
       });
     }
 
-    // 3) inject JSON-P <script> to fetch only that row’s data
+    // 3) inject the <script> tag to fetch only that row’s data
     ;(function(){
       const s = document.createElement("script");
       s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-            + "?id=" + encodeURIComponent(id)
-            + "&callback=initFormFields";
+            + "?id="       + encodeURIComponent(id)
+            + "&callback=" + "initFormFields";
       document.body.appendChild(s);
     })();
   </script>
