@@ -66,10 +66,10 @@ function startForm(formDataRaw) {
         });
 
         // Submit to GAS
-        fetch("https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=" + id, {
+        fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=${id}`, {
         method: "POST",
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formValues)
         })
         .then(r => r.text())
         .then(r => {
