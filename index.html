@@ -1,166 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Custom Product Order</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personalized Products</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9f9f9;
-      color: #333;
-    }
-
-    header {
-      background: #4a90e2;
-      color: white;
-      padding: 1.5rem 2rem;
-      text-align: center;
-      font-size: 1.8rem;
-    }
-
-    footer {
-      background: #4a90e2;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-
-    main {
-      padding: 2rem;
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      margin-top: 2rem;
-      margin-bottom: 5rem;
-    }
-
-    form div {
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 0.4rem;
-      font-size: 1rem;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.7rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    input:focus, textarea:focus {
-      border-color: #4a90e2;
-      outline: none;
-    }
-
-    button {
-      background: #4a90e2;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #357acc;
-    }
-
-    .loading {
-      text-align: center;
-      font-style: italic;
-      color: #777;
-    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+    header, footer { background: #4a90e2; color: white; padding: 1rem 2rem; }
+    header nav a { margin: 0 1rem; color: white; text-decoration: none; font-weight: bold; }
+    main { padding: 2rem; max-width: 1000px; margin: auto; }
+    section { margin-bottom: 4rem; }
+    h1, h2 { color: #4a90e2; }
+    .btn-order { background: #4a90e2; color: white; border: none; padding: 0.75rem 1.5rem; font-size: 1.1rem; border-radius: 6px; cursor: pointer; }
+    .btn-order:hover { background: #357acc; }
+    form { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    form div { margin-bottom: 1.5rem; }
+    label { font-weight: bold; display: block; margin-bottom: 0.4rem; }
+    input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    footer { text-align: center; font-size: 0.9rem; }
+    footer a { color: white; text-decoration: underline; }
   </style>
 </head>
 <body>
 
 <header>
-  Personalized Product Order
+  <h1>My Custom Shop</h1>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#products">Products</a>
+    <a href="#faq">FAQ</a>
+    <a href="#order">Order</a>
+  </nav>
 </header>
 
 <main>
-  <div id="form-wrapper">
-    <p class="loading">Loading form...</p>
-  </div>
+  <section id="about">
+    <h2>About Us</h2>
+    <p id="about-text">Loading...</p>
+  </section>
+
+  <section id="products">
+    <h2>Our Products</h2>
+    <p id="products-text">Loading...</p>
+  </section>
+
+  <section id="faq">
+    <h2>Frequently Asked Questions</h2>
+    <p id="faq-text">Loading...</p>
+  </section>
+
+  <section id="order">
+    <h2>Place Your Order</h2>
+    <form id="order-form">
+      <div class="step step-1 active">
+        <h3>Step 1: Personal Information</h3>
+        <div><label for="name">Full Name</label><input type="text" id="name" name="name" required></div>
+        <div><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+        <button type="button" class="btn-order" onclick="nextStep()">Next</button>
+      </div>
+
+      <div class="step step-2">
+        <h3>Step 2: Product Details</h3>
+        <div><label for="product">Choose Product</label>
+          <select id="product" name="product">
+            <option value="book">Personalized Adventure Book</option>
+            <option value="button">Custom Button</option>
+          </select>
+        </div>
+        <div><label for="details">Customization Info</label><textarea id="details" name="details" rows="4"></textarea></div>
+        <button type="button" class="btn-order" onclick="prevStep()">Back</button>
+        <button type="submit" class="btn-order">Submit Order</button>
+      </div>
+    </form>
+  </section>
 </main>
 
 <footer>
-  &copy; 2025 YourBrand. All rights reserved.
+  <p>&copy; 2025 My Custom Shop | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
 </footer>
 
 <script>
-  const id = new URLSearchParams(location.search).get("id") || "1";
+  const sections = ["about-text", "products-text", "faq-text"];
+  const sheetURL = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec";
 
-  function init(fields) {
-    const wrapper = document.getElementById("form-wrapper");
-    const form = document.createElement("form");
-    form.id = "dynamic-form";
-
-    fields.forEach((fieldName, i) => {
-      const fieldId = `field${i+1}`;
-
-      const div = document.createElement("div");
-
-      const label = document.createElement("label");
-      label.setAttribute("for", fieldId);
-      label.innerText = fieldName;
-
-      const input = document.createElement("input");
-      input.id = fieldId;
-      input.name = fieldName;
-      input.type = "text";
-      input.placeholder = fieldName;
-
-      div.appendChild(label);
-      div.appendChild(input);
-      form.appendChild(div);
-    });
-
-    // Submit Button
-    const submitDiv = document.createElement("div");
-    const submitBtn = document.createElement("button");
-    submitBtn.type = "submit";
-    submitBtn.textContent = "Submit Order";
-    submitDiv.appendChild(submitBtn);
-    form.appendChild(submitDiv);
-
-    wrapper.innerHTML = ""; // Clear "Loading…" message
-    wrapper.appendChild(form);
-
-    // Optional: Handle form submission
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      alert("Form submitted! (Handle logic in JS or backend)");
+  // Load homepage sections
+  function loadContent() {
+    sections.forEach((id, idx) => {
+      const script = document.createElement("script");
+      script.src = `${sheetURL}?id=${idx+1}&callback=fill_${id}`;
+      document.body.appendChild(script);
     });
   }
 
-  (function () {
-    const script = document.createElement("script");
-    script.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-      + "?id=" + encodeURIComponent(id)
-      + "&callback=init";
-    document.body.appendChild(script);
-  })();
+  function fill_about_text(data) { document.getElementById("about-text").innerText = data.title; }
+  function fill_products_text(data) { document.getElementById("products-text").innerText = data.title; }
+  function fill_faq_text(data) { document.getElementById("faq-text").innerText = data.title; }
+
+  // Step form logic
+  let currentStep = 1;
+  function nextStep() {
+    document.querySelector(".step-" + currentStep).classList.remove("active");
+    currentStep++;
+    document.querySelector(".step-" + currentStep).classList.add("active");
+  }
+  function prevStep() {
+    document.querySelector(".step-" + currentStep).classList.remove("active");
+    currentStep--;
+    document.querySelector(".step-" + currentStep).classList.add("active");
+  }
+
+  // Fake form submit
+  document.getElementById("order-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("Order submitted successfully!");
+  });
+
+  loadContent();
 </script>
 
 </body>
