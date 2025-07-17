@@ -87,35 +87,36 @@
   const id = new URLSearchParams(location.search).get("id") || "1";
 
   // ✅ 2. Your init() function goes here
-  function init(row) {
-    const [about, products, faq, ...formFields] = row;
+function init(row) {
+  const [about, products, faq, ...formFields] = row;
 
-    document.getElementById("about-text").innerText = about;
-    document.getElementById("products-text").innerText = products;
-    document.getElementById("faq-text").innerText = faq;
+  // Inject homepage sections
+  document.getElementById("about-text").innerText = about;
+  document.getElementById("products-text").innerText = products;
+  document.getElementById("faq-text").innerText = faq;
 
-    const form = document.getElementById("dynamic-form");
-    form.innerHTML = ""; // clear previous
+  // Inject fields into the product details step only
+  const step2 = document.querySelector(".step-2");
 
-    formFields.forEach((field, i) => {
-      const div = document.createElement("div");
+  formFields.forEach((field, i) => {
+    const div = document.createElement("div");
 
-      const label = document.createElement("label");
-      label.innerText = field;
-      label.htmlFor = "field" + (i + 1);
+    const label = document.createElement("label");
+    label.innerText = field;
+    label.htmlFor = "field" + (i + 1);
 
-      const input = document.createElement("input");
-      input.name = field;
-      input.id = "field" + (i + 1);
-      input.placeholder = field;
-      input.type = "text";
+    const input = document.createElement("input");
+    input.name = field;
+    input.id = "field" + (i + 1);
+    input.placeholder = field;
+    input.type = "text";
 
-      div.appendChild(label);
-      div.appendChild(input);
-      form.appendChild(div);
-    });
-  }
-
+    div.appendChild(label);
+    div.appendChild(input);
+    // insert before the Back button
+    step2.insertBefore(div, step2.querySelector("button"));
+  });
+}
   // ✅ 3. Inject the JSON-P script
   (function () {
     const s = document.createElement("script");
