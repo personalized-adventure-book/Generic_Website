@@ -33,11 +33,21 @@
 const id = new URLSearchParams(location.search).get("id") || "1";
 
 function init(row) {
+  if (!row || !row.length || typeof row[0] !== "string") {
+    console.error("No valid data returned from Sheet.");
+    return;
+  }
+
   let data;
   try {
     data = JSON.parse(row[0]);
   } catch (e) {
-    console.error("Invalid JSON:", e);
+    console.error("Invalid JSON format:", e, row[0]);
+    return;
+  }
+
+  if (!data.sections || !Array.isArray(data.sections)) {
+    console.error("Missing or invalid `sections` array in JSON:", data);
     return;
   }
 
