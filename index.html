@@ -54,7 +54,7 @@
 
   <section id="order">
     <h2>Place Your Order</h2>
-    <form id="order-form">
+    <form id="dynamic-form">
       <div class="step step-1 active">
         <h3>Step 1: Personal Information</h3>
         <div><label for="name">Full Name</label><input type="text" id="name" name="name" required></div>
@@ -83,42 +83,47 @@
 </footer>
 
 <script>
-  const sections = ["about-text", "products-text", "faq-text"];
-  const sheetURL = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec";
+  // 1. Get ?id from URL
+  const id = new URLSearchParams(location.search).get("id") || "1";
 
-  // Load homepage sections
-  function loadContent() {
-    sections.forEach((id, idx) => {
-      const script = document.createElement("script");
-      script.src = `${sheetURL}?id=${idx+1}&callback=fill_${id}`;
-      document.body.appendChild(script);
+  // ✅ 2. Your init() function goes here
+  function init(row) {
+    const [about, products, faq, ...formFields] = row;
+
+    document.getElementById("about-text").innerText = about;
+    document.getElementById("products-text").innerText = products;
+    document.getElementById("faq-text").innerText = faq;
+
+    const form = document.getElementById("dynamic-form");
+    form.innerHTML = ""; // clear previous
+
+    formFields.forEach((field, i) => {
+      const div = document.createElement("div");
+
+      const label = document.createElement("label");
+      label.innerText = field;
+      label.htmlFor = "field" + (i + 1);
+
+      const input = document.createElement("input");
+      input.name = field;
+      input.id = "field" + (i + 1);
+      input.placeholder = field;
+      input.type = "text";
+
+      div.appendChild(label);
+      div.appendChild(input);
+      form.appendChild(div);
     });
   }
 
-  function fill_about_text(data) { document.getElementById("about-text").innerText = data.title; }
-  function fill_products_text(data) { document.getElementById("products-text").innerText = data.title; }
-  function fill_faq_text(data) { document.getElementById("faq-text").innerText = data.title; }
-
-  // Step form logic
-  let currentStep = 1;
-  function nextStep() {
-    document.querySelector(".step-" + currentStep).classList.remove("active");
-    currentStep++;
-    document.querySelector(".step-" + currentStep).classList.add("active");
-  }
-  function prevStep() {
-    document.querySelector(".step-" + currentStep).classList.remove("active");
-    currentStep--;
-    document.querySelector(".step-" + currentStep).classList.add("active");
-  }
-
-  // Fake form submit
-  document.getElementById("order-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    alert("Order submitted successfully!");
-  });
-
-  loadContent();
+  // ✅ 3. Inject the JSON-P script
+  (function () {
+    const s = document.createElement("script");
+    s.src = "https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec"
+          + "?id=" + encodeURIComponent(id)
+          + "&callback=init";
+    document.body.appendChild(s);
+  })();
 </script>
 
 </body>
