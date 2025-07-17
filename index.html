@@ -46,11 +46,6 @@ function init(row) {
     return;
   }
 
-  if (!data.sections || !Array.isArray(data.sections)) {
-    console.error("Missing or invalid `sections` array in JSON:", data);
-    return;
-  }
-
   const nav = document.getElementById("nav-links");
   const main = document.getElementById("main-content");
   nav.innerHTML = '';
