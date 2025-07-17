@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Personalized Adventure Book</title>
+  <title>Dynamic Site</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; color: #333; }
     header, footer { background: #4a90e2; color: white; padding: 1rem 2rem; }
@@ -19,15 +19,13 @@
 <body>
 
 <header>
-  <h1 id="site-title">Personalized Adventure Book</h1>
+  <h1 id="site-title">Loading...</h1>
   <nav id="nav-links"></nav>
 </header>
 
 <main id="main-content"></main>
 
-<footer>
-  <p id="footer-copyright"></p>
-</footer>
+<footer id="footer-content"></footer>
 
 <script>
 const id = new URLSearchParams(location.search).get("id") || "1";
@@ -46,78 +44,81 @@ function init(row) {
     return;
   }
 
-  const nav = document.getElementById("nav-links");
+  // --- Hero ---
+  const hero = data.hero || {};
+  const heroTitle = hero.title || hero.headline || "Your Story Begins Here";
+  const heroSubtitle = hero.subtitle || hero.subheadline || "";
+  const primaryCTA = hero.cta_buttons?.primary || hero.start_button || "Start";
+  const secondaryCTA = hero.cta_buttons?.secondary || hero.examples_button || "";
+
+  document.getElementById("site-title").innerText = heroTitle;
+
   const main = document.getElementById("main-content");
-  const footer = document.getElementById("footer-copyright");
-  nav.innerHTML = '';
-  main.innerHTML = '';
+  const nav = document.getElementById("nav-links");
 
-  function addSection(id, title, contentHTML) {
-    const navLink = document.createElement("a");
-    navLink.href = `#${id}`;
-    navLink.innerText = title;
-    nav.appendChild(navLink);
+  // Add hero section
+  const heroSection = document.createElement("section");
+  heroSection.innerHTML = `
+    <h2>${heroTitle}</h2>
+    <p>${heroSubtitle}</p>
+    <button class="btn">${primaryCTA}</button>
+    ${secondaryCTA ? `<button class="btn" style="margin-left: 1rem;">${secondaryCTA}</button>` : ""}
+  `;
+  main.appendChild(heroSection);
 
-    const sec = document.createElement("section");
-    sec.id = id;
-    const h2 = document.createElement("h2");
-    h2.innerText = title;
-    sec.appendChild(h2);
-    if (contentHTML) sec.innerHTML += contentHTML;
-    main.appendChild(sec);
+  // --- Features ---
+  if (Array.isArray(data.features)) {
+    const section = document.createElement("section");
+    section.innerHTML = `<h2>Features</h2>`;
+    data.features.forEach(f => {
+      section.innerHTML += `<p><strong>${f.title}</strong>: ${f.description}</p>`;
+    });
+    main.appendChild(section);
+    nav.innerHTML += `<a href="#features">Features</a>`;
+    section.id = "features";
   }
 
-  addSection("hero", data.hero.title, `
-    <p><strong>${data.hero.badge}</strong></p>
-    <p>${data.hero.subtitle}</p>
-    <button class="btn">${data.hero.cta_buttons.primary}</button>
-    <button class="btn">${data.hero.cta_buttons.secondary}</button>
-  `);
+  // --- Adventure Possibilities ---
+  const adventures = data.adventure_possibilities;
+  if (adventures && Array.isArray(adventures.options || adventures.cards)) {
+    const section = document.createElement("section");
+    section.id = "adventures";
+    nav.innerHTML += `<a href="#adventures">Adventures</a>`;
+    section.innerHTML = `<h2>${adventures.title}</h2><p>${adventures.subtitle || ""}</p>`;
+    const list = adventures.options || adventures.cards;
+    list.forEach(opt => {
+      section.innerHTML += `<p><strong>${opt.title}</strong>: ${opt.description}</p>`;
+    });
+    main.appendChild(section);
+  }
 
-  addSection("features", "Features", data.features.map(f => `
-    <div><strong>${f.title}</strong>: ${f.description}</div>
-  `).join(""));
+  // --- Book Examples ---
+  const examples = data.book_examples;
+  if (examples?.examples?.length) {
+    const section = document.createElement("section");
+    section.id = "examples";
+    nav.innerHTML += `<a href="#examples">Examples</a>`;
+    section.innerHTML = `<h2>${examples.title}</h2><p>${examples.subtitle || ""}</p>`;
+    examples.examples.forEach(ex => {
+      section.innerHTML += `<p><strong>${ex.title}</strong>: ${ex.preview}</p>`;
+    });
+    main.appendChild(section);
+  }
 
-  addSection("adventures", data.adventure_possibilities.title, `
-    <p>${data.adventure_possibilities.subtitle}</p>
-    ${data.adventure_possibilities.options.map(opt => `
-      <div><strong>${opt.title}</strong>: ${opt.description}</div>
-    `).join("")}
-  `);
-
-  addSection("examples", data.book_examples.title, `
-    <p>${data.book_examples.subtitle}</p>
-    ${data.book_examples.examples.filter(e => e.title).map(e => `
-      <div><strong>${e.title}</strong><br>${e.subtitle}<br>${e.adventure}<br><em>${e.preview}</em></div>
-    `).join("")}
-  `);
-
-  addSection("how", data.how_it_works.title, `
-    <p>${data.how_it_works.subtitle}</p>
-    <ol>${data.how_it_works.steps.map(step => `<li><strong>${step.title}</strong>: ${step.description}</li>`).join("")}</ol>
-  `);
-
-  addSection("options", data.book_options.title, `
-    <p>${data.book_options.subtitle}</p>
-    ${data.book_options.types.map(t => `
-      <div><strong>${t.name}</strong> (${t.price})<br>${t.description}<br>${(t.badge || '')}<br>
-      ${t.features.map(f => `<li>${f}</li>`).join("")}</div>
-    `).join("")}
-  `);
-
-  addSection("cta", data.ready_cta.title, `
-    <p>${data.ready_cta.subtitle}</p>
-    <button class="btn">${data.ready_cta.button}</button>
-  `);
-
-  footer.innerText = data.footer?.copyright || "";
+  // --- Footer ---
+  const footer = data.footer || {};
+  document.getElementById("footer-content").innerHTML = `
+    <p>${footer.description || ""}</p>
+    <p>${footer.copyright || "© 2025 Dynamic Web. All rights reserved."}</p>
+  `;
 }
 
+// Load JSON-P from Google Apps Script
 (function () {
   const s = document.createElement("script");
   s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-          + "?id=" + encodeURIComponent(id)
-          + "&callback=init";
+        + "?id=" + encodeURIComponent(id)
+        + "&callback=init";
   document.body.appendChild(s);
 })();
 </script>
