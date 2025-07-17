@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personalized Products</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Custom Shop</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
@@ -20,6 +20,7 @@
     input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; }
     .step { display: none; }
     .step.active { display: block; }
+    .dynamic-field { margin-top: 1rem; }
     footer { text-align: center; font-size: 0.9rem; }
     footer a { color: white; text-decoration: underline; }
   </style>
@@ -39,98 +40,136 @@
 <main>
   <section id="about">
     <h2>About Us</h2>
-    <p id="about-text">Loading...</p>
+    <p id="about-text">Loading…</p>
   </section>
 
   <section id="products">
     <h2>Our Products</h2>
-    <p id="products-text">Loading...</p>
+    <p id="products-text">Loading…</p>
   </section>
 
   <section id="faq">
-    <h2>Frequently Asked Questions</h2>
-    <p id="faq-text">Loading...</p>
+    <h2>FAQ</h2>
+    <p id="faq-text">Loading…</p>
   </section>
 
   <section id="order">
     <h2>Place Your Order</h2>
-    <form id="dynamic-form">
+    <form id="order-form">
       <div class="step step-1 active">
         <h3>Step 1: Personal Information</h3>
-        <div><label for="name">Full Name</label><input type="text" id="name" name="name" required></div>
-        <div><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+        <div>
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
         <button type="button" class="btn-order" onclick="nextStep()">Next</button>
       </div>
 
       <div class="step step-2">
-        <h3>Step 2: Product Details</h3>
-        <div><label for="product">Choose Product</label>
+        <h3>Step 2: Product Customization</h3>
+        <div>
+          <label for="product">Choose Product</label>
           <select id="product" name="product">
             <option value="book">Personalized Adventure Book</option>
             <option value="button">Custom Button</option>
           </select>
         </div>
-        <div><label for="details">Customization Info</label><textarea id="details" name="details" rows="4"></textarea></div>
+        <div id="dynamic-fields"></div>
+
         <button type="button" class="btn-order" onclick="prevStep()">Back</button>
-        <button type="submit" class="btn-order">Submit Order</button>
+        <button type="submit" class="btn-order">Submit</button>
       </div>
     </form>
   </section>
 </main>
 
 <footer>
-  <p>&copy; 2025 My Custom Shop | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+  <p>&copy; 2025 My Custom Shop | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
 </footer>
 
 <script>
-  // 1. Get ?id from URL
   const id = new URLSearchParams(location.search).get("id") || "1";
+  let allFields = [];
 
-  // ✅ 2. Your init() function goes here
-function init(row) {
-  if (!Array.isArray(row) || row.length < 3) {
-    alert("Invalid data from sheet");
-    return;
+  function init(row) {
+    const [about, products, faq, fieldJson] = row;
+
+    document.getElementById("about-text").innerText = about;
+    document.getElementById("products-text").innerText = products;
+    document.getElementById("faq-text").innerText = faq;
+
+    try {
+      allFields = JSON.parse(fieldJson);
+    } catch (e) {
+      console.error("Invalid JSON in sheet:", e);
+      return;
+    }
+
+    document.getElementById("product").addEventListener("change", renderFields);
+    renderFields();
   }
 
-  const [about, products, faq, ...formFields] = row;
+  function renderFields() {
+    const product = document.getElementById("product").value;
+    const container = document.getElementById("dynamic-fields");
+    container.innerHTML = "";
 
-  document.getElementById("about-text").innerText = about;
-  document.getElementById("products-text").innerText = products;
-  document.getElementById("faq-text").innerText = faq;
+    allFields
+      .filter(f => f.product === product)
+      .forEach((field, i) => {
+        const div = document.createElement("div");
+        div.className = "dynamic-field";
 
-  const step2 = document.querySelector(".step-2");
+        const label = document.createElement("label");
+        label.innerText = field.label;
+        label.htmlFor = "field" + i;
 
-  // Insert custom fields just above the "Back" button
-  const insertBeforeBtn = step2.querySelector('button[type="button"]');
+        let input;
+        if (field.type === "select") {
+          input = document.createElement("select");
+          input.name = field.label;
+          input.id = "field" + i;
+          (field.options || []).forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.innerText = opt;
+            input.appendChild(option);
+          });
+        } else {
+          input = document.createElement("input");
+          input.type = field.type || "text";
+          input.name = field.label;
+          input.id = "field" + i;
+          input.placeholder = field.label;
+        }
 
-  formFields.forEach((field, i) => {
-    if (!field) return;
+        div.appendChild(label);
+        div.appendChild(input);
+        container.appendChild(div);
+      });
+  }
 
-    const div = document.createElement("div");
+  function nextStep() {
+    document.querySelector(".step-1").classList.remove("active");
+    document.querySelector(".step-2").classList.add("active");
+  }
 
-    const label = document.createElement("label");
-    label.innerText = field;
-    label.htmlFor = "field" + (i + 1);
+  function prevStep() {
+    document.querySelector(".step-2").classList.remove("active");
+    document.querySelector(".step-1").classList.add("active");
+  }
 
-    const input = document.createElement("input");
-    input.name = field;
-    input.id = "field" + (i + 1);
-    input.placeholder = field;
-    input.type = "text";
-
-    div.appendChild(label);
-    div.appendChild(input);
-
-    step2.insertBefore(div, insertBeforeBtn);
-  });
-}
-  // ✅ 3. Inject the JSON-P script
+  // Load Google Apps Script Data
   (function () {
     const s = document.createElement("script");
-    s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec"
-          + "?id=" + encodeURIComponent(id)
-          + "&callback=init";
+    s.src =
+      "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec" +
+      "?id=" + encodeURIComponent(id) +
+      "&callback=init";
     document.body.appendChild(s);
   })();
 </script>
