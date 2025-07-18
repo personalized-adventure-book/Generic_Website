@@ -91,9 +91,42 @@
         font-size: 0.95rem;
       }
     }
+      header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--gap);
+    background: var(--clr-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--gap);
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+    background: linear-gradient(90deg, var(--clr-primary), var(--clr-secondary));
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  nav a {
+    margin-left: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--clr-text);
+  }
+
+  nav a:hover {
+    color: var(--clr-primary);
+  }
+
   </style>
 </head>
 <body>
+    <header>
+        <h1 id="site-title">Adventure Book</h1>
+        <nav id="nav-links"></nav>
+    </header>
   <main id="main-content">
     <!-- Hero and sections will be injected here -->
   </main>
