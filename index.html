@@ -554,192 +554,19 @@
 <body>
 
     <header>
-        <a href="/" id="logo-link" style="text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
-          <span style="font-size:2.1rem;line-height:1;">📚</span>
-          <h1 id="site-title" style="margin:0;">Adventure Book</h1>
-        </a>
+        <h1 id="site-title">Adventure Book</h1>
         <nav id="nav-links"></nav>
-    /* Menu Bar Styling */
-    nav {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    nav a {
-      margin-left: 1.1rem;
-      text-decoration: none;
-      font-weight: 700;
-      color: var(--clr-text);
-      padding: 0.3rem 0.7rem;
-      border-radius: 8px;
-      transition: background var(--transition), color var(--transition);
-      font-size: 1.05rem;
-      position: relative;
-      z-index: 1;
-    }
-    nav a.active, nav a:focus {
-      color: #fff;
-      background: linear-gradient(90deg, var(--clr-primary), var(--clr-secondary));
-      outline: none;
-    }
-    nav a:hover {
-      color: var(--clr-primary);
-      background: #f3f0ff;
-    }
     </header>
   <main id="main-content">
     <!-- Hero and sections will be injected here -->
     <div class="section-divider"></div>
   </main>
 
-  <footer id="main-footer">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <a href="/" style="text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
-          <span style="font-size:2.1rem;line-height:1;">📚</span>
-          <span class="footer-title">Adventure Book</span>
-        </a>
-      </div>
-      <div class="footer-links">
-        <a href="#features">Features</a>
-        <a href="#adventures">Adventures</a>
-        <a href="#examples">Examples</a>
-      </div>
-      <div class="footer-social">
-        <a href="https://instagram.com/" target="_blank" aria-label="Instagram" class="footer-social-icon">📸</a>
-        <a href="https://facebook.com/" target="_blank" aria-label="Facebook" class="footer-social-icon">📘</a>
-        <a href="mailto:info@adventurebook.com" aria-label="Email" class="footer-social-icon">✉️</a>
-      </div>
-    </div>
-    <div class="footer-bottom">© 2025 Adventure Book. All rights reserved.</div>
+  <footer>
+    <div id="footer-content" style="text-align:center; color:#7a5cff; font-weight:600; font-size:1.05rem; padding:1.2rem 0 0.5rem 0; letter-spacing:0.5px;">© 2025 Adventure Book. All rights reserved.</div>
+    <button class="floating-cta" title="Start Your Adventure" onclick="window.scrollTo({top:0,behavior:'smooth'})">✨</button>
   </footer>
-  <button class="floating-cta" title="Start Your Adventure" onclick="window.scrollTo({top:0,behavior:'smooth'})">✨</button>
-  <style>
-    #main-footer {
-      background: linear-gradient(90deg, #f7f8fa 60%, #e9e6ff 100%);
-      border-top: 2px solid #ede7ff;
-      margin-top: 2.5rem;
-      padding: 2.2rem 0 0.7rem 0;
-      box-shadow: 0 -2px 16px rgba(122, 92, 255, 0.04);
-      border-radius: 18px 18px 0 0;
-      text-align: center;
-    }
-    .footer-content {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 960px;
-      margin: 0 auto 0.7rem auto;
-      gap: 1.2rem;
-      padding: 0 1.2rem;
-    }
-    .footer-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--clr-primary);
-    }
-    .footer-title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, var(--clr-primary), var(--clr-secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -1px;
-    }
-    .footer-links {
-      display: flex;
-      gap: 1.2rem;
-    }
-    .footer-links a {
-      color: var(--clr-primary);
-      font-weight: 700;
-      text-decoration: none;
-      font-size: 1.05rem;
-      transition: color var(--transition);
-    }
-    .footer-links a:hover {
-      color: var(--clr-secondary);
-      text-decoration: underline;
-    }
-    .footer-social {
-      display: flex;
-      gap: 0.7rem;
-      align-items: center;
-    }
-    .footer-social-icon {
-      font-size: 1.35rem;
-      color: var(--clr-accent);
-      text-decoration: none;
-      transition: color var(--transition), transform var(--transition);
-    }
-    .footer-social-icon:hover {
-      color: var(--clr-primary);
-      transform: scale(1.18) rotate(-8deg);
-    }
-    .footer-bottom {
-      color: var(--clr-primary);
-      font-weight: 600;
-      font-size: 1.05rem;
-      letter-spacing: 0.5px;
-      margin-top: 0.7rem;
-    }
-    @media (max-width: 700px) {
-      .footer-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.1rem;
-        padding: 0 0.5rem;
-      }
-      .footer-links {
-        gap: 0.7rem;
-      }
-    }
-  </style>
 <script>
-// Highlight active nav link on scroll
-window.addEventListener('DOMContentLoaded', function() {
-  const nav = document.getElementById('nav-links');
-  function setActiveLink() {
-    if (!nav) return;
-    const links = nav.querySelectorAll('a[href^="#"]');
-    let found = false;
-    links.forEach(link => link.classList.remove('active'));
-    const scrollY = window.scrollY;
-    const sections = Array.from(document.querySelectorAll('section[id]'));
-    for (let i = sections.length - 1; i >= 0; i--) {
-      const sec = sections[i];
-      if (sec.offsetTop - 80 <= scrollY) {
-        const link = nav.querySelector(`a[href="#${sec.id}"]`);
-        if (link) link.classList.add('active');
-        found = true;
-        break;
-      }
-    }
-    if (!found && links.length) links[0].classList.add('active');
-  }
-  setActiveLink();
-  window.addEventListener('scroll', setActiveLink);
-  nav.addEventListener('click', e => {
-    if (e.target.tagName === 'A' && e.target.getAttribute('href').startsWith('#')) {
-      setTimeout(setActiveLink, 200);
-    }
-  });
-  // Logo click always goes home
-  const logo = document.getElementById('logo-link');
-  if (logo) {
-    logo.addEventListener('click', function(e) {
-      e.preventDefault();
-      window.scrollTo({top:0,behavior:'smooth'});
-      history.pushState({}, '', '/');
-      // Optionally reload or re-initialize main content if SPA
-    });
-  }
-});
 const id = new URLSearchParams(location.search).get("id") || "1";
 
 // Load Form Data (Second Column of the Same Row)
