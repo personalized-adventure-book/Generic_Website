@@ -6,6 +6,67 @@
   <title>Magical Adventure Book</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Section Divider */
+    .section-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--clr-primary), var(--clr-accent), var(--clr-secondary));
+      opacity: 0.13;
+      border-radius: 2px;
+      margin: 2.5rem 0 1.5rem 0;
+    }
+
+    /* Animated Icon */
+    .animated-icon {
+      display: inline-block;
+      animation: icon-bounce 1.2s infinite alternate cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes icon-bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-8px) scale(1.12); }
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--clr-secondary), var(--clr-accent));
+      color: #fff;
+      font-size: 0.78em;
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 0.18em 0.7em;
+      margin-left: 0.5em;
+      letter-spacing: 0.5px;
+      vertical-align: middle;
+      box-shadow: 0 1px 4px rgba(255, 166, 61, 0.10);
+    }
+
+    /* Floating CTA Button */
+    .floating-cta {
+      position: fixed;
+      bottom: 2.2rem;
+      right: 2.2rem;
+      background: linear-gradient(90deg, var(--clr-primary), var(--clr-accent));
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      box-shadow: 0 8px 32px rgba(122, 92, 255, 0.18);
+      font-size: 2.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+      outline: none;
+    }
+    .floating-cta:hover {
+      background: linear-gradient(90deg, var(--clr-secondary), var(--clr-primary));
+      box-shadow: 0 12px 32px rgba(255, 166, 61, 0.18);
+      transform: scale(1.08);
+    }
     /* Adventure Cards Styling */
     .adventure-cards {
       display: flex;
@@ -493,17 +554,193 @@
 <body>
 
     <header>
-        <h1 id="site-title">Adventure Book</h1>
+        <a href="/" id="logo-link" style="text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
+          <span style="font-size:2.1rem;line-height:1;">📚</span>
+          <h1 id="site-title" style="margin:0;">Adventure Book</h1>
+        </a>
         <nav id="nav-links"></nav>
+    /* Menu Bar Styling */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    nav a {
+      margin-left: 1.1rem;
+      text-decoration: none;
+      font-weight: 700;
+      color: var(--clr-text);
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      transition: background var(--transition), color var(--transition);
+      font-size: 1.05rem;
+      position: relative;
+      z-index: 1;
+    }
+    nav a.active, nav a:focus {
+      color: #fff;
+      background: linear-gradient(90deg, var(--clr-primary), var(--clr-secondary));
+      outline: none;
+    }
+    nav a:hover {
+      color: var(--clr-primary);
+      background: #f3f0ff;
+    }
     </header>
   <main id="main-content">
     <!-- Hero and sections will be injected here -->
+    <div class="section-divider"></div>
   </main>
 
   <footer>
-    <div id="footer-content" style="text-align:center; color:#7a5cff; font-weight:600; font-size:1.05rem; padding:1.2rem 0 0.5rem 0; letter-spacing:0.5px;">© 2025 Adventure Book. All rights reserved.</div>
+    <footer id="main-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="/" style="text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
+            <span style="font-size:2.1rem;line-height:1;">📚</span>
+            <span class="footer-title">Adventure Book</span>
+          </a>
+        </div>
+        <div class="footer-links">
+          <a href="#features">Features</a>
+          <a href="#adventures">Adventures</a>
+          <a href="#examples">Examples</a>
+        </div>
+        <div class="footer-social">
+          <a href="https://instagram.com/" target="_blank" aria-label="Instagram" class="footer-social-icon">📸</a>
+          <a href="https://facebook.com/" target="_blank" aria-label="Facebook" class="footer-social-icon">📘</a>
+          <a href="mailto:info@adventurebook.com" aria-label="Email" class="footer-social-icon">✉️</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Adventure Book. All rights reserved.</div>
+    </footer>
+    <button class="floating-cta" title="Start Your Adventure" onclick="window.scrollTo({top:0,behavior:'smooth'})">✨</button>
+    /* Footer Styling */
+    #main-footer {
+      background: linear-gradient(90deg, #f7f8fa 60%, #e9e6ff 100%);
+      border-top: 2px solid #ede7ff;
+      margin-top: 2.5rem;
+      padding: 2.2rem 0 0.7rem 0;
+      box-shadow: 0 -2px 16px rgba(122, 92, 255, 0.04);
+      border-radius: 18px 18px 0 0;
+      text-align: center;
+    }
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 960px;
+      margin: 0 auto 0.7rem auto;
+      gap: 1.2rem;
+      padding: 0 1.2rem;
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--clr-primary);
+    }
+    .footer-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--clr-primary), var(--clr-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -1px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.2rem;
+    }
+    .footer-links a {
+      color: var(--clr-primary);
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: color var(--transition);
+    }
+    .footer-links a:hover {
+      color: var(--clr-secondary);
+      text-decoration: underline;
+    }
+    .footer-social {
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+    }
+    .footer-social-icon {
+      font-size: 1.35rem;
+      color: var(--clr-accent);
+      text-decoration: none;
+      transition: color var(--transition), transform var(--transition);
+    }
+    .footer-social-icon:hover {
+      color: var(--clr-primary);
+      transform: scale(1.18) rotate(-8deg);
+    }
+    .footer-bottom {
+      color: var(--clr-primary);
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: 0.5px;
+      margin-top: 0.7rem;
+    }
+    @media (max-width: 700px) {
+      .footer-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.1rem;
+        padding: 0 0.5rem;
+      }
+      .footer-links {
+        gap: 0.7rem;
+      }
+    }
   </footer>
 <script>
+// Highlight active nav link on scroll
+window.addEventListener('DOMContentLoaded', function() {
+  const nav = document.getElementById('nav-links');
+  function setActiveLink() {
+    if (!nav) return;
+    const links = nav.querySelectorAll('a[href^="#"]');
+    let found = false;
+    links.forEach(link => link.classList.remove('active'));
+    const scrollY = window.scrollY;
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    for (let i = sections.length - 1; i >= 0; i--) {
+      const sec = sections[i];
+      if (sec.offsetTop - 80 <= scrollY) {
+        const link = nav.querySelector(`a[href="#${sec.id}"]`);
+        if (link) link.classList.add('active');
+        found = true;
+        break;
+      }
+    }
+    if (!found && links.length) links[0].classList.add('active');
+  }
+  setActiveLink();
+  window.addEventListener('scroll', setActiveLink);
+  nav.addEventListener('click', e => {
+    if (e.target.tagName === 'A' && e.target.getAttribute('href').startsWith('#')) {
+      setTimeout(setActiveLink, 200);
+    }
+  });
+  // Logo click always goes home
+  const logo = document.getElementById('logo-link');
+  if (logo) {
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({top:0,behavior:'smooth'});
+      history.pushState({}, '', '/');
+      // Optionally reload or re-initialize main content if SPA
+    });
+  }
+});
 const id = new URLSearchParams(location.search).get("id") || "1";
 
 // Load Form Data (Second Column of the Same Row)
@@ -653,10 +890,10 @@ function init(row) {
     section.innerHTML = `<h2>Features</h2>`;
     // Feature icons (fallback if not enough, will repeat)
     const icons = [
-      '🧒', // Personalized Characters
-      '👀', // Instant Preview
-      '📦', // Print or Digital
-      '🎨', '🚀', '🌟', '📖', '🦸', '🏰', '🌊', '🧚', '🦄', '🐉'
+      '🧒', '👀', '📦', '🎨', '🚀', '🌟', '📖', '🦸', '🏰', '🌊', '🧚', '🦄', '🐉'
+    ];
+    const badges = [
+      'NEW', '', 'POPULAR', '', '', '', '', '', '', '', '', '', ''
     ];
     const cards = document.createElement("div");
     cards.className = "feature-cards";
@@ -664,8 +901,8 @@ function init(row) {
       const card = document.createElement("div");
       card.className = "feature-card";
       card.innerHTML = `
-        <span class="feature-icon">${icons[i % icons.length]}</span>
-        <span class="feature-card-title">${f.title}</span>
+        <span class="feature-icon animated-icon">${icons[i % icons.length]}</span>
+        <span class="feature-card-title">${f.title}${badges[i % badges.length] ? `<span class='badge'>${badges[i % badges.length]}</span>` : ''}</span>
         <span class="feature-card-desc">${f.description}</span>
       `;
       cards.appendChild(card);
@@ -685,6 +922,9 @@ function init(row) {
     const icons = [
       '🚀', '🌳', '🏰', '🏴‍☠️', '🦸', '🌊', '🧚', '🦄', '🐉', '👑', '🪐', '🦜', '🦁', '🦋', '🧙', '🧜', '🦄', '🐲'
     ];
+    const badges = [
+      'POPULAR', '', '', 'NEW', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+    ];
     const list = adventures.options || adventures.cards;
     const cards = document.createElement("div");
     cards.className = "adventure-cards";
@@ -692,8 +932,8 @@ function init(row) {
       const card = document.createElement("div");
       card.className = "adventure-card";
       card.innerHTML = `
-        <span class="adventure-icon">${icons[i % icons.length]}</span>
-        <span class="adventure-card-title">${opt.title}</span>
+        <span class="adventure-icon animated-icon">${icons[i % icons.length]}</span>
+        <span class="adventure-card-title">${opt.title}${badges[i % badges.length] ? `<span class='badge'>${badges[i % badges.length]}</span>` : ''}</span>
         <span class="adventure-card-desc">${opt.description}</span>
       `;
       cards.appendChild(card);
@@ -712,14 +952,17 @@ function init(row) {
     const icons = [
       '📖', '🌲', '🚀', '👑', '🦋', '🦸', '🧚', '🦄', '🐉', '🧙', '🧜', '🐲', '🦜', '🦁'
     ];
+    const badges = [
+      '', 'NEW', '', '', 'POPULAR', '', '', '', '', '', '', '', '', ''
+    ];
     const cards = document.createElement("div");
     cards.className = "example-cards";
     examples.examples.forEach((ex, i) => {
       const card = document.createElement("div");
       card.className = "example-card";
       card.innerHTML = `
-        <span class="example-icon">${icons[i % icons.length]}</span>
-        <span class="example-card-title">${ex.title}</span>
+        <span class="example-icon animated-icon">${icons[i % icons.length]}</span>
+        <span class="example-card-title">${ex.title}${badges[i % badges.length] ? `<span class='badge'>${badges[i % badges.length]}</span>` : ''}</span>
         <span class="example-card-desc">${ex.preview}</span>
       `;
       cards.appendChild(card);
