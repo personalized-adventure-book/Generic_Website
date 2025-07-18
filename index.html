@@ -700,143 +700,102 @@ function startForm(formDataRaw) {
     };
 
 
-    // --- Repeatable Group (e.g., Experiences) ---
-    if (step.repeatable_group && step.repeatable_group.fields && step.repeatable_group.name) {
+    // --- Repeatable Group (e.g. Experiences) ---
+    if (step.repeatable_group) {
       const group = step.repeatable_group;
-      let min = group.min || 1;
-      let max = group.max || 10;
-      let experiences = [];
-      // Helper to create a single experience card
-      function createExperienceCard(idx, data = {}) {
-        const card = document.createElement('div');
-        card.className = 'experience-card';
-        card.style = 'background: #f7f8fa; border-radius: 12px; box-shadow: 0 2px 8px rgba(122,92,255,0.07); padding: 1.2rem 1rem 1rem 1rem; margin-bottom: 1.2rem; position: relative;';
-        card.innerHTML = `<div style='font-weight:700;color:var(--clr-primary);margin-bottom:0.7rem;font-size:1.1rem;'>${group.label || 'Experience'} #${idx+1}</div>`;
-        group.fields.forEach(f => {
-          const label = document.createElement('label');
-          label.htmlFor = f.name + '_' + idx;
-          label.innerText = f.label;
-          card.appendChild(label);
-          let input;
-          if (f.type === 'textarea') {
-            input = document.createElement('textarea');
-          } else if (f.type === 'file') {
-            input = document.createElement('input');
-            input.type = 'file';
-          } else {
-            input = document.createElement('input');
-            input.type = f.type;
-            if (f.maxLength) input.maxLength = f.maxLength;
-          }
-          input.id = input.name = f.name + '_' + idx;
-          input.placeholder = f.placeholder || '';
-          input.required = !!f.required;
-          if (data && data[f.name]) input.value = data[f.name];
-          card.appendChild(input);
-        });
-        // Remove button (if more than min)
-        if (idx >= min) {
-          const removeBtn = document.createElement('button');
-          removeBtn.type = 'button';
-          removeBtn.innerText = 'Remove';
-          removeBtn.className = 'btn danger';
-          removeBtn.style = 'margin-top:0.7rem;float:right;';
-          removeBtn.onclick = () => {
-            experiences.splice(idx, 1);
-            renderExperiences();
-          };
-          card.appendChild(removeBtn);
-        }
-        return card;
-      }
-      // Render all experience cards
+      const groupWrap = document.createElement('div');
+      groupWrap.className = 'repeatable-group';
+      groupWrap.style.margin = '1.2rem 0 2rem 0';
+      groupWrap.style.display = 'flex';
+      groupWrap.style.flexDirection = 'column';
+      groupWrap.style.gap = '1.2rem';
+      const groupLabel = document.createElement('h3');
+      groupLabel.innerText = group.label || 'Experience';
+      groupLabel.style.color = 'var(--clr-secondary)';
+      groupLabel.style.marginBottom = '0.5rem';
+      groupWrap.appendChild(groupLabel);
+
+      let experiences = [{}];
       function renderExperiences() {
-        // Remove old group if present
-        const old = form.querySelector('.experience-group-wrap');
-        if (old) old.remove();
-        const wrap = document.createElement('div');
-        wrap.className = 'experience-group-wrap';
-        wrap.style = 'margin-bottom:1.5rem;';
+        // Remove all but label
+        while (groupWrap.children.length > 1) groupWrap.removeChild(groupWrap.lastChild);
         experiences.forEach((exp, idx) => {
-          wrap.appendChild(createExperienceCard(idx, exp));
-        });
-        // Add button
-        if (experiences.length < max) {
-          const addBtn = document.createElement('button');
-          addBtn.type = 'button';
-          addBtn.innerText = 'Add Experience';
-          addBtn.className = 'btn info';
-          addBtn.style = 'margin-top:0.7rem;';
-          addBtn.onclick = () => {
-            experiences.push({});
-            renderExperiences();
-          };
-          wrap.appendChild(addBtn);
-        }
-        form.insertBefore(wrap, form.firstChild);
-      }
-      // Start with min experiences
-      for (let i = 0; i < min; i++) experiences.push({});
-      renderExperiences();
-      // On submit, collect all experience data
-      form.onsubmit = (e => {
-        e.preventDefault();
-        // ...existing code...
-        (step.fields || []).forEach(field => {
-          // ...existing code for static fields...
-          if (field.type === "radio") {
-            const checked = form.querySelector(`input[name='${field.name}']:checked`);
-            if (checked) formData[field.name] = checked.value;
-          } else if (field.type === "checkbox" && Array.isArray(field.options)) {
-            formData[field.name] = Array.from(form.querySelectorAll(`input[name='${field.name}']:checked`)).map(el => el.value);
-          } else if (field.type === "adventure_selector") {
-            formData[field.name] = adventureCardSelected;
-          } else if (field.type === "tags") {
-            formData[field.name] = form.querySelector(`[name='${field.name}']`).value.split(/,|\n/).map(s => s.trim()).filter(Boolean);
-          } else {
-            const el = form.querySelector(`[name='${field.name}']`);
-            if (el) formData[field.name] = el.value;
+          const card = document.createElement('div');
+          card.className = 'experience-card';
+          card.style.background = 'linear-gradient(120deg,#fffbe7 60%,#fff 100%)';
+          card.style.border = '1.5px solid #ffe0b2';
+          card.style.borderRadius = '14px';
+          card.style.boxShadow = '0 2px 8px rgba(255,166,61,0.08)';
+          card.style.padding = '1.1rem 1rem 1rem 1rem';
+          card.style.marginBottom = '0.2rem';
+          card.style.position = 'relative';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.gap = '0.7rem';
+          group.fields.forEach(field => {
+            const label = document.createElement('label');
+            label.innerText = field.label;
+            label.htmlFor = field.name + '_' + idx;
+            card.appendChild(label);
+            let input;
+            if (field.type === 'textarea') {
+              input = document.createElement('textarea');
+            } else if (field.type === 'file') {
+              input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+            } else {
+              input = document.createElement('input');
+              input.type = field.type;
+              if (field.placeholder) input.placeholder = field.placeholder;
+            }
+            input.name = field.name;
+            input.id = field.name + '_' + idx;
+            input.required = !!field.required;
+            input.value = exp[field.name] || '';
+            input.oninput = e => { exp[field.name] = input.type === 'file' ? input.files : input.value; };
+            card.appendChild(input);
+          });
+          // Remove button
+          if (experiences.length > (group.min || 1)) {
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.innerText = 'Remove';
+            removeBtn.className = 'btn danger';
+            removeBtn.style.marginTop = '0.5rem';
+            removeBtn.onclick = () => {
+              experiences.splice(idx, 1);
+              renderExperiences();
+            };
+            card.appendChild(removeBtn);
           }
+          groupWrap.appendChild(card);
         });
-        // Collect repeatable group data
-        formData[group.name] = experiences.map((_, idx) => {
-          const exp = {};
-          group.fields.forEach(f => {
-            const el = form.querySelector(`[name='${f.name}_${idx}']`);
-            if (el && f.type !== 'file') exp[f.name] = el.value;
-            if (el && f.type === 'file' && el.files && el.files.length) exp[f.name] = el.files[0].name;
-          });
-          return exp;
+      }
+      renderExperiences();
+      // Add button
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.innerText = 'Add Experience';
+      addBtn.className = 'btn info';
+      addBtn.style.marginTop = '0.7rem';
+      addBtn.onclick = () => {
+        experiences.push({});
+        renderExperiences();
+      };
+      groupWrap.appendChild(addBtn);
+      form.appendChild(groupWrap);
+      // On submit, collect all experiences
+      form._getExperiences = () => experiences.map(exp => {
+        const out = {};
+        group.fields.forEach(f => {
+          out[f.name] = exp[f.name] || '';
         });
-        // ...existing code for next/submit...
-        if (stepIndex < steps.length - 1) {
-          currentStep++;
-          renderStep(currentStep);
-        } else {
-          formData.id = id;
-          main.innerHTML = `<section style='max-width:520px;margin:2rem auto 0 auto;padding:2.5rem 2rem 2rem 2rem;text-align:center;border-radius:16px;box-shadow:0 4px 24px rgba(122,92,255,0.10);background:#fff;'>
-            <h2 style='color:var(--clr-primary);margin-bottom:1.2rem;'>Thank you for your order!</h2>
-            <div style='text-align:left;margin:0 auto;max-width:400px;'>
-              <h3 style='color:var(--clr-secondary);margin-bottom:0.7rem;'>Order Details</h3>
-              <ul style='list-style:none;padding:0;'>
-                ${Object.entries(formData).map(([k,v]) => `<li style='margin-bottom:0.5em;'><strong style='color:var(--clr-primary);'>${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${Array.isArray(v) ? JSON.stringify(v) : v}</li>`).join('')}
-              </ul>
-            </div>
-          </section>`;
-          fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec`, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {"Content-Type": "text/plain;charset=utf-8"},
-            body: JSON.stringify(formData)
-          }).catch(err => {
-            alert("Submission failed.");
-            console.error(err);
-          });
-        }
+        return out;
       });
     }
 
-    // ...existing code for static fields...
+    // Render all fields
     (step.fields || []).forEach(field => {
       // ...existing code...
 
