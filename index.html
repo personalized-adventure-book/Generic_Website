@@ -1,98 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Adventure Book</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4a90e2;
-      --bg: #f5f7fa;
-      --text: #333;
+      --clr-primary: #4caf50;
+      --clr-secondary: #673ab7;
+      --clr-accent: #ff9800;
+      --clr-bg: #fcfcfd;
+      --clr-surface: #ffffff;
+      --clr-text: #333333;
+      --radius: 12px;
+      --gap: 1.5rem;
+      --shadow: rgba(0,0,0,0.1) 0px 4px 12px;
     }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: 'Comic Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      line-height: 1.5;
     }
+
     header, footer {
-      background: var(--primary);
-      color: white;
-      padding: 1.2rem 2rem;
+      background: var(--clr-surface);
+      box-shadow: var(--shadow);
+      position: sticky; top: 0; z-index: 10;
     }
-    header h1, footer p {
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--gap);
+    }
+    header h1 {
       margin: 0;
-    }
-    nav {
-      margin-top: 0.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--clr-secondary), var(--clr-primary));
+      -webkit-background-clip: text;
+      color: transparent;
+      font-size: 1.75rem;
     }
     nav a {
-      margin-right: 1rem;
-      color: white;
+      margin-left: 1rem;
+      color: var(--clr-text);
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 600;
     }
+    nav a:hover { color: var(--clr-primary); }
+
     main {
-      padding: 2rem;
-      max-width: 900px;
+      padding: var(--gap);
+      max-width: 1000px;
       margin: auto;
     }
-    section {
-      margin-bottom: 3rem;
+    section + section { margin-top: calc(var(--gap) * 2); }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: calc(var(--gap) * 2) 1rem;
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
-    h2 {
-      color: var(--primary);
+    .hero p {
+      max-width: 600px;
+      margin: var(--gap) auto;
+      color: #555;
     }
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 0.7rem 1.5rem;
-      border-radius: 8px;
-      font-size: 1rem;
+    .hero .btn {
+      margin: var(--gap) .5rem 0;
+      font-size: 1.1rem;
+      padding: .8rem 2rem;
+    }
+
+    /* Features Grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: var(--gap);
+    }
+    .features .card {
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: var(--gap);
+      text-align: center;
+    }
+    .features .card h3 {
+      margin: .5rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .features .card p {
+      font-size: .95rem;
+      color: #666;
+    }
+
+    /* Examples Carousel */
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+      gap: var(--gap);
+    }
+    .examples .card {
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .examples .card-icon {
+      font-size: 2rem;
+      padding: var(--gap);
+      text-align: center;
+    }
+    .examples .card-body {
+      padding: var(--gap);
+      flex-grow: 1;
+    }
+    .examples .card-body h4 {
+      margin: 0 0 .5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .examples .card-body p {
+      margin: .3rem 0;
+      font-size: .9rem;
+      color: #555;
+    }
+
+    /* Multi-step form */
+    .form-container {
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: var(--gap);
+      position: relative;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #eee;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: var(--gap);
+    }
+    .progress-bar__fill {
+      height: 100%;
+      background: var(--clr-primary);
+      width: 0;
+      transition: width .3s;
+    }
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--gap);
+    }
+    .step-header h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .step-header .stop {
+      background: transparent;
+      border: 1px solid #f44336;
+      color: #f44336;
+      padding: .3rem .8rem;
+      border-radius: var(--radius);
       cursor: pointer;
     }
-    .btn:hover {
-      background: #357acc;
+    .step-header .stop:hover {
+      background: #f44336;
+      color: #fff;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
+    form {
+      display: grid;
+      gap: var(--gap);
     }
-    input, textarea, select {
-      width: 100%;
-      padding: 0.6rem;
-      margin-top: 0.3rem;
+    form .field-group {
+      display: flex;
+      flex-direction: column;
+    }
+    form label {
+      font-weight: 600;
+      margin-bottom: .5rem;
+    }
+    form input,
+    form textarea,
+    form select {
+      padding: .8rem;
+      border-radius: var(--radius);
       border: 1px solid #ccc;
-      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
     }
-    form button {
-      margin-top: 1.5rem;
+    form textarea { resize: vertical; }
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--gap);
+    }
+    .btn-prev {
+      background: #fafafa;
+      border: 1px solid #ccc;
+      color: #555;
+    }
+    .btn-next {
+      background: var(--clr-primary);
+      color: white;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 600px) {
+      .btn-row { flex-direction: column-reverse; gap: var(--gap); }
+      .btn-prev, .btn-next { width: 100%; }
     }
   </style>
 </head>
 <body>
+
   <header>
     <h1 id="site-title">Adventure Book</h1>
     <nav id="nav-links">
-      <a href="#features">Features</a>
-      <a href="#adventures">Adventures</a>
-      <a href="#examples">Examples</a>
+      <!-- injected nav links -->
     </nav>
   </header>
 
   <main id="main-content">
-    <!-- Hero and dynamic content will be injected here -->
+    <!-- Hero and sections will be injected here -->
   </main>
 
   <footer>
-    <div id="footer-content">
-      <p>© 2025 Adventure Book. All rights reserved.</p>
-    </div>
+    <div id="footer-content">© 2025 Adventure Book. All rights reserved.</div>
   </footer>
-  
 <script>
 const id = new URLSearchParams(location.search).get("id") || "1";
 
