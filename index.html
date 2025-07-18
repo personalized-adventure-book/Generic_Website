@@ -64,7 +64,8 @@ function startForm(formDataRaw) {
         form.querySelectorAll("input, textarea, select").forEach(el => {
         formData[el.name] = el.value;
         });
-        //formData.id = id;
+        formData.id = id;
+        console.log("Sending data to GAS:", formData);
         // Submit to GAS
         fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=${id}`, {
             method: "POST",
