@@ -1,25 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Adventure Book</title>
-  <!-- Google Font -->
+  <!-- …your existing head… -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /*────────────────────────────────────────
+      Color Palette & Spacing
+    ────────────────────────────────────────*/
     :root {
+      --clr-bg:     #fcfcfd;
+      --clr-surface:#ffffff;
       --clr-primary: #4caf50;
       --clr-secondary: #673ab7;
-      --clr-accent: #ff9800;
-      --clr-bg: #fcfcfd;
-      --clr-surface: #ffffff;
-      --clr-text: #333333;
-      --radius: 12px;
-      --gap: 1.5rem;
-      --shadow: rgba(0,0,0,0.1) 0px 4px 12px;
+      --clr-text:   #333;
+      --clr-muted:  #555;
+      --radius:     12px;
+      --gap:        1.5rem;
+      --shadow:     0 4px 12px rgba(0,0,0,0.06);
     }
 
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
@@ -31,21 +30,21 @@
     header, footer {
       background: var(--clr-surface);
       box-shadow: var(--shadow);
-      position: sticky; top: 0; z-index: 10;
+      padding: var(--gap);
     }
     header {
+      position: sticky; top: 0; z-index: 10;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: var(--gap);
     }
     header h1 {
       margin: 0;
       font-weight: 700;
+      font-size: 1.75rem;
       background: linear-gradient(90deg, var(--clr-secondary), var(--clr-primary));
       -webkit-background-clip: text;
       color: transparent;
-      font-size: 1.75rem;
     }
     nav a {
       margin-left: 1rem;
@@ -56,95 +55,85 @@
     nav a:hover { color: var(--clr-primary); }
 
     main {
-      padding: var(--gap);
       max-width: 1000px;
-      margin: auto;
+      margin: var(--gap) auto;
+      padding: 0 var(--gap);
     }
-    section + section { margin-top: calc(var(--gap) * 2); }
 
-    /* Hero */
-    .hero {
-      text-align: center;
-      padding: calc(var(--gap) * 2) 1rem;
+    /*────────────────────────────────────────
+      Generic Section Card
+    ────────────────────────────────────────*/
+    #main-content section {
       background: var(--clr-surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+      padding: var(--gap);
+      margin-bottom: calc(var(--gap) * 2);
     }
-    .hero p {
+
+    /* Hero: first section */
+    #main-content section:first-of-type {
+      text-align: center;
+      background: none;
+      box-shadow: none;
+      padding: 0;
+      margin-bottom: var(--gap);
+    }
+    #main-content section:first-of-type h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--clr-secondary), var(--clr-primary));
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    #main-content section:first-of-type p {
+      font-size: 1.1rem;
+      color: var(--clr-muted);
       max-width: 600px;
       margin: var(--gap) auto;
-      color: #555;
     }
-    .hero .btn {
+    #main-content section:first-of-type .btn {
       margin: var(--gap) .5rem 0;
-      font-size: 1.1rem;
-      padding: .8rem 2rem;
     }
 
-    /* Features Grid */
-    .features {
+    /*────────────────────────────────────────
+      Cards Grids: Features, Adventures, Examples
+    ────────────────────────────────────────*/
+    #main-content section#features,
+    #main-content section#adventures,
+    #main-content section#examples {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: var(--gap);
     }
-    .features .card {
-      background: var(--clr-surface);
+    /* leave the first paragraph as subtitle */
+    #main-content section#features p:not(:first-child),
+    #main-content section#adventures p:not(:first-child),
+    #main-content section#examples p:not(:first-child) {
+      background: var(--clr-bg);
       border-radius: var(--radius);
+      padding: var(--gap)/2;
       box-shadow: var(--shadow);
-      padding: var(--gap);
-      text-align: center;
+      font-size: 0.95rem;
+      color: var(--clr-text);
     }
-    .features .card h3 {
-      margin: .5rem 0;
-      font-size: 1.1rem;
+    /* make the bold part stand out */
+    #main-content section#features p strong,
+    #main-content section#adventures p strong,
+    #main-content section#examples p strong {
+      display: block;
+      margin-bottom: 0.3rem;
       font-weight: 600;
     }
-    .features .card p {
-      font-size: .95rem;
-      color: #666;
-    }
 
-    /* Examples Carousel */
-    .examples {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
-      gap: var(--gap);
-    }
-    .examples .card {
-      background: var(--clr-surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .examples .card-icon {
-      font-size: 2rem;
-      padding: var(--gap);
-      text-align: center;
-    }
-    .examples .card-body {
-      padding: var(--gap);
-      flex-grow: 1;
-    }
-    .examples .card-body h4 {
-      margin: 0 0 .5rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    .examples .card-body p {
-      margin: .3rem 0;
-      font-size: .9rem;
-      color: #555;
-    }
-
-    /* Multi-step form */
+    /*────────────────────────────────────────
+      Forms & Multi-Step
+    ────────────────────────────────────────*/
     .form-container {
       background: var(--clr-surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: var(--gap);
-      position: relative;
     }
     .progress-bar {
       height: 6px;
@@ -156,8 +145,8 @@
     .progress-bar__fill {
       height: 100%;
       background: var(--clr-primary);
-      width: 0;
-      transition: width .3s;
+      width: 0; /* updated dynamically */
+      transition: width 0.3s;
     }
     .step-header {
       display: flex;
@@ -167,21 +156,19 @@
     }
     .step-header h2 {
       margin: 0;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: 700;
     }
     .step-header .stop {
       background: transparent;
-      border: 1px solid #f44336;
-      color: #f44336;
+      border: 1px solid #e53935;
+      color: #e53935;
       padding: .3rem .8rem;
       border-radius: var(--radius);
+      font-size: .9rem;
       cursor: pointer;
     }
-    .step-header .stop:hover {
-      background: #f44336;
-      color: #fff;
-    }
+
     form {
       display: grid;
       gap: var(--gap);
@@ -191,8 +178,8 @@
       flex-direction: column;
     }
     form label {
+      margin-bottom: .3rem;
       font-weight: 600;
-      margin-bottom: .5rem;
     }
     form input,
     form textarea,
@@ -204,6 +191,7 @@
       outline: none;
     }
     form textarea { resize: vertical; }
+
     .btn-row {
       display: flex;
       justify-content: space-between;
@@ -213,33 +201,27 @@
     .btn-prev {
       background: #fafafa;
       border: 1px solid #ccc;
-      color: #555;
+      color: var(--clr-text);
+      padding: .7rem 1.5rem;
+      border-radius: var(--radius);
     }
     .btn-next {
       background: var(--clr-primary);
       color: white;
+      padding: .7rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
     }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      font-size: .9rem;
+    .btn-row button:hover {
+      opacity: 0.9;
     }
 
     @media (max-width: 600px) {
-      .btn-row { flex-direction: column-reverse; gap: var(--gap); }
+      .btn-row { flex-direction: column; gap: var(--gap); }
       .btn-prev, .btn-next { width: 100%; }
     }
   </style>
 </head>
-<body>
-
-  <header>
-    <h1 id="site-title">Adventure Book</h1>
-    <nav id="nav-links">
-      <!-- injected nav links -->
-    </nav>
-  </header>
 
   <main id="main-content">
     <!-- Hero and sections will be injected here -->
@@ -275,6 +257,8 @@ function startForm(formDataRaw) {
     main.innerHTML = `<h2>${step.title}</h2>`;
 
     const form = document.createElement("form");
+
+    
     form.onsubmit = e => {
       e.preventDefault();
 
