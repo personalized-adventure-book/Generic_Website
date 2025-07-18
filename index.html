@@ -576,7 +576,8 @@
     <button class="floating-cta" title="Start Your Adventure" onclick="window.scrollTo({top:0,behavior:'smooth'})">✨</button>
   </footer>
 <script>
-// Fix logo click: scroll to top and reload main content, prevent default navigation
+// Cache homepage data for instant reload
+let homepageRowCache = null;
 document.addEventListener('DOMContentLoaded', function() {
   const logo = document.getElementById('site-logo');
   if (logo) {
@@ -588,8 +589,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const nav = document.getElementById('nav-links');
       if (main) main.innerHTML = '<div class="section-divider"></div>';
       if (nav) nav.innerHTML = '';
-      // Re-fetch data and re-render main content
-      if (typeof init === 'function') {
+      // If homepage data is cached, re-render instantly
+      if (homepageRowCache && typeof init === 'function') {
+        init(homepageRowCache);
+      } else if (typeof init === 'function') {
+        // Fallback: fetch again if not cached
         const id = new URLSearchParams(location.search).get("id") || "1";
         const s = document.createElement("script");
         s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=" + encodeURIComponent(id) + "&callback=init&_=" + Date.now();
@@ -705,6 +709,8 @@ function startForm(formDataRaw) {
   renderStep(currentStep);
 }
 function init(row) {
+  // Cache homepage data for instant reload
+  homepageRowCache = row;
   if (!row || !row.length || typeof row[0] !== "string") {
     console.error("No valid data returned from Sheet.");
     return;
