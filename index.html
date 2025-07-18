@@ -724,7 +724,73 @@ function startForm(formDataRaw) {
           card.style.flexDirection = 'column';
           card.style.gap = '0.7rem';
           card.innerHTML = `<div style='font-weight:700;color:var(--clr-primary);font-size:1.1rem;margin-bottom:0.2rem;'>${group.label} ${idx+1}</div>`;
+
           group.fields.forEach(f => {
+            // Special handling for activities checkbox group
+            if (f.type === 'checkbox' && Array.isArray(f.options)) {
+              const lbl = document.createElement('label');
+              lbl.innerText = f.label;
+              lbl.style.fontWeight = '600';
+              card.appendChild(lbl);
+              const groupWrap = document.createElement('div');
+              groupWrap.className = 'form-radio-group';
+              // Store checked activities for this experience
+              if (!exp.activities) exp.activities = {};
+              f.options.forEach(opt => {
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.name = f.name + '_' + idx;
+                cb.value = opt;
+                cb.id = f.name + '_' + idx + '_' + opt;
+                cb.checked = !!exp.activities[opt];
+                const cbLabel = document.createElement('label');
+                cbLabel.htmlFor = cb.id;
+                cbLabel.innerText = opt;
+                groupWrap.appendChild(cb);
+                groupWrap.appendChild(cbLabel);
+
+                // Activity detail section
+                const detailDiv = document.createElement('div');
+                detailDiv.style.display = cb.checked ? 'block' : 'none';
+                detailDiv.style.margin = '0.5rem 0 0.7rem 1.2rem';
+                detailDiv.style.padding = '0.7rem 0.7rem 0.7rem 0.7rem';
+                detailDiv.style.background = '#f7f8fa';
+                detailDiv.style.borderRadius = '10px';
+                detailDiv.style.boxShadow = '0 1px 4px rgba(122,92,255,0.06)';
+                // Label and input for details
+                const detailLabel = document.createElement('label');
+                detailLabel.innerText = `Details for ${opt}`;
+                detailLabel.style.fontWeight = '500';
+                detailLabel.style.color = 'var(--clr-info)';
+                detailLabel.style.display = 'block';
+                detailLabel.style.marginBottom = '0.3rem';
+                const detailInput = document.createElement('textarea');
+                detailInput.placeholder = `Describe your experience with ${opt}...`;
+                detailInput.style.width = '100%';
+                detailInput.style.minHeight = '60px';
+                detailInput.value = exp.activities[opt]?.details || '';
+                detailInput.oninput = e => {
+                  if (!exp.activities[opt]) exp.activities[opt] = {};
+                  exp.activities[opt].details = detailInput.value;
+                };
+                detailDiv.appendChild(detailLabel);
+                detailDiv.appendChild(detailInput);
+                groupWrap.appendChild(detailDiv);
+
+                cb.onchange = () => {
+                  if (cb.checked) {
+                    if (!exp.activities[opt]) exp.activities[opt] = {};
+                    detailDiv.style.display = 'block';
+                  } else {
+                    detailDiv.style.display = 'none';
+                    delete exp.activities[opt];
+                  }
+                };
+              });
+              card.appendChild(groupWrap);
+              return;
+            }
+            // Default field rendering
             const lbl = document.createElement('label');
             lbl.innerText = f.label;
             lbl.htmlFor = f.name + '_' + idx;
