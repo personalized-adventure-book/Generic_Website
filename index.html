@@ -699,105 +699,116 @@ function startForm(formDataRaw) {
       }
     };
 
-
-    // --- Repeatable Group (e.g. Experiences) ---
-    if (step.repeatable_group) {
-      const group = step.repeatable_group;
-      const groupWrap = document.createElement('div');
-      groupWrap.className = 'repeatable-group';
-      groupWrap.style.margin = '1.2rem 0 2rem 0';
-      groupWrap.style.display = 'flex';
-      groupWrap.style.flexDirection = 'column';
-      groupWrap.style.gap = '1.2rem';
-      const groupLabel = document.createElement('h3');
-      groupLabel.innerText = group.label || 'Experience';
-      groupLabel.style.color = 'var(--clr-secondary)';
-      groupLabel.style.marginBottom = '0.5rem';
-      groupWrap.appendChild(groupLabel);
-
-      let experiences = [{}];
-      function renderExperiences() {
-        // Remove all but label
-        while (groupWrap.children.length > 1) groupWrap.removeChild(groupWrap.lastChild);
-        experiences.forEach((exp, idx) => {
-          const card = document.createElement('div');
-          card.className = 'experience-card';
-          card.style.background = 'linear-gradient(120deg,#fffbe7 60%,#fff 100%)';
-          card.style.border = '1.5px solid #ffe0b2';
-          card.style.borderRadius = '14px';
-          card.style.boxShadow = '0 2px 8px rgba(255,166,61,0.08)';
-          card.style.padding = '1.1rem 1rem 1rem 1rem';
-          card.style.marginBottom = '0.2rem';
-          card.style.position = 'relative';
-          card.style.display = 'flex';
-          card.style.flexDirection = 'column';
-          card.style.gap = '0.7rem';
-          group.fields.forEach(field => {
-            const label = document.createElement('label');
-            label.innerText = field.label;
-            label.htmlFor = field.name + '_' + idx;
-            card.appendChild(label);
-            let input;
-            if (field.type === 'textarea') {
-              input = document.createElement('textarea');
-            } else if (field.type === 'file') {
-              input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/*';
-            } else {
-              input = document.createElement('input');
-              input.type = field.type;
-              if (field.placeholder) input.placeholder = field.placeholder;
-            }
-            input.name = field.name;
-            input.id = field.name + '_' + idx;
-            input.required = !!field.required;
-            input.value = exp[field.name] || '';
-            input.oninput = e => { exp[field.name] = input.type === 'file' ? input.files : input.value; };
-            card.appendChild(input);
-          });
-          // Remove button
-          if (experiences.length > (group.min || 1)) {
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.innerText = 'Remove';
-            removeBtn.className = 'btn danger';
-            removeBtn.style.marginTop = '0.5rem';
-            removeBtn.onclick = () => {
-              experiences.splice(idx, 1);
-              renderExperiences();
-            };
-            card.appendChild(removeBtn);
-          }
-          groupWrap.appendChild(card);
-        });
-      }
-      renderExperiences();
-      // Add button
-      const addBtn = document.createElement('button');
-      addBtn.type = 'button';
-      addBtn.innerText = 'Add Experience';
-      addBtn.className = 'btn info';
-      addBtn.style.marginTop = '0.7rem';
-      addBtn.onclick = () => {
-        experiences.push({});
-        renderExperiences();
-      };
-      groupWrap.appendChild(addBtn);
-      form.appendChild(groupWrap);
-      // On submit, collect all experiences
-      form._getExperiences = () => experiences.map(exp => {
-        const out = {};
-        group.fields.forEach(f => {
-          out[f.name] = exp[f.name] || '';
-        });
-        return out;
-      });
-    }
-
     // Render all fields
     (step.fields || []).forEach(field => {
-      // ...existing code...
+      const label = document.createElement("label");
+      label.htmlFor = field.name;
+      label.innerText = field.label;
+      form.appendChild(label);
+
+      // Gender radio group
+      if (field.type === "radio" && Array.isArray(field.options)) {
+        const group = document.createElement("div");
+        group.className = "form-radio-group";
+        field.options.forEach(opt => {
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = field.name;
+          radio.value = opt;
+          radio.id = field.name + '_' + opt;
+          radio.required = !!field.required;
+          const radioLabel = document.createElement("label");
+          radioLabel.htmlFor = radio.id;
+          radioLabel.innerText = opt;
+          group.appendChild(radio);
+          group.appendChild(radioLabel);
+        });
+        form.appendChild(group);
+        return;
+      }
+
+      // Adventure type as cards (support object options)
+      if (field.type === "adventure_selector" && Array.isArray(field.options)) {
+        const cardWrap = document.createElement("div");
+        cardWrap.className = "adventure-cards";
+        field.options.forEach(opt => {
+          let title = typeof opt === 'object' && opt.title ? opt.title : String(opt);
+          let desc = typeof opt === 'object' && opt.description ? opt.description : '';
+          let icon = typeof opt === 'object' && opt.icon ? opt.icon : '🗺️';
+          // Emoji fallback for some common icon names
+          const emojiMap = { rocket: '🚀', tree: '🌳', crown: '👑', anchor: '⚓', bolt: '⚡', heart: '💖' };
+          if (icon && emojiMap[icon]) icon = emojiMap[icon];
+          const card = document.createElement("div");
+          card.className = "adventure-card";
+          card.tabIndex = 0;
+          card.style.cursor = "pointer";
+          card.innerHTML = `<span class='adventure-icon animated-icon'>${icon}</span><span class='adventure-card-title'>${title}</span>${desc ? `<span class='adventure-card-desc'>${desc}</span>` : ''}`;
+          card.onclick = () => {
+            adventureCardSelected = title;
+            Array.from(cardWrap.children).forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+          };
+          card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { card.onclick(); } };
+          cardWrap.appendChild(card);
+        });
+        // Style for selected
+        const style = document.createElement('style');
+        style.innerHTML = `.adventure-card.selected { border:2.5px solid var(--clr-primary); box-shadow:0 4px 16px rgba(122,92,255,0.18); }`;
+        document.head.appendChild(style);
+        form.appendChild(cardWrap);
+        return;
+      }
+
+      // Checkbox group for activities
+      if (field.type === "checkbox" && Array.isArray(field.options)) {
+        const group = document.createElement("div");
+        group.className = "form-radio-group";
+        field.options.forEach(opt => {
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.name = field.name;
+          cb.value = opt;
+          cb.id = field.name + '_' + opt;
+          const cbLabel = document.createElement("label");
+          cbLabel.htmlFor = cb.id;
+          cbLabel.innerText = opt;
+          group.appendChild(cb);
+          group.appendChild(cbLabel);
+        });
+        form.appendChild(group);
+        return;
+      }
+
+      // Dynamic add-more for adventures (tags or text)
+      if (field.type === "tags" || field.type === "add_more") {
+        const wrap = document.createElement('div');
+        wrap.style.display = 'flex';
+        wrap.style.flexDirection = 'column';
+        wrap.style.gap = '0.5rem';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = field.name;
+        input.id = field.name;
+        input.placeholder = field.placeholder || 'Add more...';
+        wrap.appendChild(input);
+        // Add button to add more fields
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.innerText = 'Add More';
+        addBtn.className = 'btn info';
+        addBtn.onclick = () => {
+          const newInput = document.createElement('input');
+          newInput.type = 'text';
+          newInput.name = field.name;
+          newInput.placeholder = field.placeholder || 'Add more...';
+          wrap.insertBefore(newInput, addBtn);
+          dynamicCheckboxes.push(newInput);
+        };
+        wrap.appendChild(addBtn);
+        dynamicCheckboxes.push(input);
+        form.appendChild(wrap);
+        return;
+      }
 
       // Default: select, textarea, range, text, etc.
       let input;
