@@ -44,9 +44,10 @@ function startForm(formDataRaw) {
   if (!steps.length) return;
 
   const main = document.getElementById("main-content");
-  main.innerHTML = ""; // Clear homepage content
+  main.innerHTML = "";
 
   let currentStep = 0;
+  const formData = {}; // ✅ Global object to accumulate values
 
   function renderStep(stepIndex) {
     const step = steps[stepIndex];
@@ -55,41 +56,38 @@ function startForm(formDataRaw) {
     const form = document.createElement("form");
     form.onsubmit = e => {
       e.preventDefault();
+
+      // ✅ Collect this step’s fields and merge into formData
+      form.querySelectorAll("input, textarea, select").forEach(el => {
+        formData[el.name] = el.value;
+      });
+
       if (stepIndex < steps.length - 1) {
         currentStep++;
         renderStep(currentStep);
       } else {
-        // Gather form data
-        const formData = {};
-        form.querySelectorAll("input, textarea, select").forEach(el => {
-        formData[el.name] = el.value;
-        });
-        formData.id = id;
+        formData.id = id; // ✅ Add id
         console.log("Sending data to GAS:", formData);
-        // Submit to GAS
-        fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=${id}`, {
-            method: "POST",
-            redirect: "follow",
-            mode: "no-cors",
-            keepalive: true,
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-            },      
-            body: JSON.stringify(formData)
+
+        fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec`, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(formData)
         })
-        .then(r => r.text())
-        .then(r => {
-            alert("Form submitted: " + r);
-            main.innerHTML = "<h2>Thank you!</h2><p>Your order was received.</p>";
+        .then(() => {
+          main.innerHTML = "<h2>Thank you!</h2><p>Your order was received.</p>";
         })
         .catch(err => {
-            alert("Submission failed.");
-            console.error(err);
+          alert("Submission failed.");
+          console.error(err);
         });
-
       }
     };
 
+    // Render all fields
     (step.fields || []).forEach(field => {
       const label = document.createElement("label");
       label.htmlFor = field.name;
@@ -134,8 +132,6 @@ function startForm(formDataRaw) {
 
   renderStep(currentStep);
 }
-
-
 function init(row) {
   if (!row || !row.length || typeof row[0] !== "string") {
     console.error("No valid data returned from Sheet.");
