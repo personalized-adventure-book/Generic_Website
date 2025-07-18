@@ -563,7 +563,7 @@
 <body>
 
     <header>
-        <a href="/" id="site-logo" style="text-decoration:none;"><h1 id="site-title">Adventure Book</h1></a>
+        <a href="#" id="site-logo" style="text-decoration:none;"><h1 id="site-title">Adventure Book</h1></a>
         <nav id="nav-links" aria-label="Main Navigation"></nav>
     </header>
   <main id="main-content">
@@ -576,6 +576,24 @@
     <button class="floating-cta" title="Start Your Adventure" onclick="window.scrollTo({top:0,behavior:'smooth'})">✨</button>
   </footer>
 <script>
+// Fix logo click: scroll to top and reload main content, prevent default navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const logo = document.getElementById('site-logo');
+  if (logo) {
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({top:0,behavior:'smooth'});
+      // Optionally, reload main content if needed:
+      if (typeof init === 'function') {
+        // Re-fetch data and re-render main content
+        const id = new URLSearchParams(location.search).get("id") || "1";
+        const s = document.createElement("script");
+        s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=" + encodeURIComponent(id) + "&callback=init&_=" + Date.now();
+        document.body.appendChild(s);
+      }
+    });
+  }
+});
 const id = new URLSearchParams(location.search).get("id") || "1";
 
 // Load Form Data (Second Column of the Same Row)
