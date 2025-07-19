@@ -976,8 +976,68 @@ function startForm(formDataRaw) {
 
   function renderStep(stepIndex) {
     const step = steps[stepIndex];
-    main.innerHTML = `<h2>${step.title}</h2>`;
+    main.innerHTML = '';
     const form = document.createElement("form");
+    // --- Form header with back and close buttons ---
+    const formHeader = document.createElement('div');
+    formHeader.style.display = 'flex';
+    formHeader.style.alignItems = 'center';
+    formHeader.style.justifyContent = 'space-between';
+    formHeader.style.marginBottom = '1.1rem';
+    // Back button (not on first step)
+    if (stepIndex > 0) {
+      const backBtn = document.createElement('button');
+      backBtn.type = 'button';
+      backBtn.innerHTML = '← Back';
+      backBtn.className = 'btn info';
+      backBtn.style.padding = '0.4rem 1.1rem';
+      backBtn.style.fontSize = '0.98rem';
+      backBtn.onclick = () => {
+        currentStep--;
+        renderStep(currentStep);
+      };
+      formHeader.appendChild(backBtn);
+    } else {
+      // Spacer for alignment
+      const spacer = document.createElement('div');
+      spacer.style.width = '70px';
+      formHeader.appendChild(spacer);
+    }
+    // Title
+    const stepTitle = document.createElement('h2');
+    stepTitle.innerText = step.title;
+    stepTitle.style.margin = '0 auto 0 0';
+    stepTitle.style.fontSize = '1.45rem';
+    stepTitle.style.fontWeight = '800';
+    stepTitle.style.color = 'var(--clr-primary)';
+    stepTitle.style.letterSpacing = '-1px';
+    formHeader.appendChild(stepTitle);
+    // X (close) button
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.title = 'Cancel order';
+    closeBtn.className = 'btn danger';
+    closeBtn.style.fontSize = '1.3rem';
+    closeBtn.style.fontWeight = '700';
+    closeBtn.style.width = '38px';
+    closeBtn.style.height = '38px';
+    closeBtn.style.borderRadius = '50%';
+    closeBtn.style.padding = '0';
+    closeBtn.style.display = 'flex';
+    closeBtn.style.alignItems = 'center';
+    closeBtn.style.justifyContent = 'center';
+    closeBtn.style.marginLeft = '1.1rem';
+    closeBtn.onclick = () => {
+      // Reset to homepage/hero
+      if (homepageRowCache && typeof init === 'function') {
+        init(homepageRowCache);
+      } else {
+        main.innerHTML = '<div class="section-divider"></div>';
+      }
+    };
+    formHeader.appendChild(closeBtn);
+    form.appendChild(formHeader);
 
     // For dynamic adventure cards selection
     let adventureCardSelected = null;
