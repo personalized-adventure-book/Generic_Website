@@ -618,6 +618,22 @@
     text-align: center;
     word-break: break-all;
   }
+  .file-upload-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+  }
+  .file-upload-thumb {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1.5px solid #d1c4e9;
+    box-shadow: 0 1px 4px rgba(122,92,255,0.08);
+    background: #fff;
+  }
   @media (max-width: 600px) {
     .file-upload-area {
       padding: 0.7rem 0.3rem;
@@ -804,6 +820,35 @@
     align-self: flex-start;
     font-size: 0.98rem;
     padding: 0.5rem 1.2rem;
+  }
+  .custom-activity-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+  .custom-activity-row input[type="text"] {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
+  }
+  .custom-activity-row .btn.custom-add-btn {
+    padding: 0.32rem 0.9rem;
+    font-size: 0.97rem;
+    margin: 0;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--clr-info), var(--clr-primary));
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(61,220,255,0.10);
+    transition: background 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s cubic-bezier(.4,0,.2,1);
+  }
+  .custom-activity-row .btn.custom-add-btn:hover, .custom-activity-row .btn.custom-add-btn:focus {
+    background: linear-gradient(90deg, var(--clr-primary), var(--clr-info));
+    box-shadow: 0 2px 8px rgba(61,220,255,0.13);
+  }
   }
   .experience-card .btn.danger {
     margin-top: 0.5rem;
@@ -1106,14 +1151,16 @@ function startForm(formDataRaw) {
               customWrap.style.display = 'flex';
               customWrap.style.flexDirection = 'column';
               customWrap.style.gap = '0.5rem';
+              // Row for input and button
+              const customRow = document.createElement('div');
+              customRow.className = 'custom-activity-row';
               const customInput = document.createElement('input');
               customInput.type = 'text';
               customInput.placeholder = 'Add custom activity...';
-              customInput.style.marginTop = '0.5rem';
               const addCustomBtn = document.createElement('button');
               addCustomBtn.type = 'button';
-              addCustomBtn.innerText = 'Add More';
-              addCustomBtn.className = 'btn info';
+              addCustomBtn.innerText = 'Add';
+              addCustomBtn.className = 'btn custom-add-btn';
               addCustomBtn.onclick = () => {
                 const val = customInput.value.trim();
                 if (val && !exp._activityOptions.includes(val)) {
@@ -1122,8 +1169,9 @@ function startForm(formDataRaw) {
                   renderExperiences();
                 }
               };
-              customWrap.appendChild(customInput);
-              customWrap.appendChild(addCustomBtn);
+              customRow.appendChild(customInput);
+              customRow.appendChild(addCustomBtn);
+              customWrap.appendChild(customRow);
               // Wrap grid and custom input
               const groupDiv = document.createElement('div');
               groupDiv.appendChild(grid);
@@ -1151,6 +1199,7 @@ function startForm(formDataRaw) {
                 <span class="file-upload-icon">📷</span>
                 <span class="file-upload-label">Upload Images (You can select multiple)</span>
                 <span class="file-upload-filename" style="display:none;"></span>
+                <div class="file-upload-thumbnails"></div>
               `;
               inp = document.createElement('input');
               inp.type = 'file';
@@ -1164,6 +1213,8 @@ function startForm(formDataRaw) {
                 const files = Array.from(inp.files);
                 experiences[idx][f.name] = inp.files;
                 const fileNameSpan = uploadArea.querySelector('.file-upload-filename');
+                const thumbContainer = uploadArea.querySelector('.file-upload-thumbnails');
+                // Show filenames
                 if (files.length) {
                   fileNameSpan.style.display = 'block';
                   fileNameSpan.textContent = files.map(f => f.name).join(', ');
@@ -1171,6 +1222,20 @@ function startForm(formDataRaw) {
                   fileNameSpan.style.display = 'none';
                   fileNameSpan.textContent = '';
                 }
+                // Show thumbnails
+                thumbContainer.innerHTML = '';
+                files.forEach(file => {
+                  if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                      const img = document.createElement('img');
+                      img.src = ev.target.result;
+                      img.className = 'file-upload-thumb';
+                      thumbContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                });
               };
               // Drag and drop support
               uploadArea.ondragover = e => { e.preventDefault(); uploadArea.classList.add('dragover'); };
