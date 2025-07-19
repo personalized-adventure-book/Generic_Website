@@ -724,77 +724,72 @@ function startForm(formDataRaw) {
           card.style.flexDirection = 'column';
           card.style.gap = '0.7rem';
           card.innerHTML = `<div style='font-weight:700;color:var(--clr-primary);font-size:1.1rem;margin-bottom:0.2rem;'>${group.label} ${idx+1}</div>`;
-
           group.fields.forEach(f => {
+            const lbl = document.createElement('label');
+            lbl.innerText = f.label;
+            lbl.htmlFor = f.name + '_' + idx;
+            card.appendChild(lbl);
             // Special handling for activities checkbox group
             if (f.type === 'checkbox' && Array.isArray(f.options)) {
-              const lbl = document.createElement('label');
-              lbl.innerText = f.label;
-              lbl.style.fontWeight = '600';
-              card.appendChild(lbl);
-              const groupWrap = document.createElement('div');
-              groupWrap.className = 'form-radio-group';
-              // Store checked activities for this experience
-              if (!exp.activities) exp.activities = {};
+              // Store checked activities in exp._activities = {activity: details}
+              if (!exp._activities) exp._activities = {};
+              const groupDiv = document.createElement('div');
+              groupDiv.className = 'form-radio-group';
               f.options.forEach(opt => {
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.name = f.name + '_' + idx;
                 cb.value = opt;
                 cb.id = f.name + '_' + idx + '_' + opt;
-                cb.checked = !!exp.activities[opt];
+                cb.checked = exp._activities[opt] !== undefined;
                 const cbLabel = document.createElement('label');
                 cbLabel.htmlFor = cb.id;
                 cbLabel.innerText = opt;
-                groupWrap.appendChild(cb);
-                groupWrap.appendChild(cbLabel);
-
-                // Activity detail section
-                const detailDiv = document.createElement('div');
-                detailDiv.style.display = cb.checked ? 'block' : 'none';
-                detailDiv.style.margin = '0.5rem 0 0.7rem 1.2rem';
-                detailDiv.style.padding = '0.7rem 0.7rem 0.7rem 0.7rem';
-                detailDiv.style.background = '#f7f8fa';
-                detailDiv.style.borderRadius = '10px';
-                detailDiv.style.boxShadow = '0 1px 4px rgba(122,92,255,0.06)';
-                // Label and input for details
-                const detailLabel = document.createElement('label');
-                detailLabel.innerText = `Details for ${opt}`;
-                detailLabel.style.fontWeight = '500';
-                detailLabel.style.color = 'var(--clr-info)';
-                detailLabel.style.display = 'block';
-                detailLabel.style.marginBottom = '0.3rem';
-                const detailInput = document.createElement('textarea');
-                detailInput.placeholder = `Describe your experience with ${opt}...`;
-                detailInput.style.width = '100%';
-                detailInput.style.minHeight = '60px';
-                detailInput.value = exp.activities[opt]?.details || '';
-                detailInput.oninput = e => {
-                  if (!exp.activities[opt]) exp.activities[opt] = {};
-                  exp.activities[opt].details = detailInput.value;
+                groupDiv.appendChild(cb);
+                groupDiv.appendChild(cbLabel);
+                // Activity details section
+                const detailsDiv = document.createElement('div');
+                detailsDiv.style.display = cb.checked ? 'block' : 'none';
+                detailsDiv.style.margin = '0.5rem 0 0.7rem 1.2rem';
+                detailsDiv.style.padding = '0.7rem 0.7rem 0.7rem 0.7rem';
+                detailsDiv.style.background = '#f7f8fa';
+                detailsDiv.style.borderRadius = '10px';
+                detailsDiv.style.boxShadow = '0 1px 4px rgba(122,92,255,0.06)';
+                // You can customize the fields here (e.g., textarea for notes)
+                const detailsLabel = document.createElement('label');
+                detailsLabel.innerText = opt + ' details';
+                detailsLabel.style.fontWeight = '500';
+                detailsLabel.style.color = 'var(--clr-info)';
+                detailsLabel.style.fontSize = '0.98rem';
+                detailsLabel.style.marginBottom = '0.2rem';
+                detailsLabel.htmlFor = f.name + '_' + idx + '_' + opt + '_details';
+                const detailsInput = document.createElement('textarea');
+                detailsInput.placeholder = 'Enter details for ' + opt;
+                detailsInput.style.width = '100%';
+                detailsInput.style.minHeight = '60px';
+                detailsInput.id = f.name + '_' + idx + '_' + opt + '_details';
+                detailsInput.value = exp._activities[opt] || '';
+                detailsInput.oninput = e => {
+                  exp._activities[opt] = detailsInput.value;
                 };
-                detailDiv.appendChild(detailLabel);
-                detailDiv.appendChild(detailInput);
-                groupWrap.appendChild(detailDiv);
-
+                detailsDiv.appendChild(detailsLabel);
+                detailsDiv.appendChild(detailsInput);
+                groupDiv.appendChild(detailsDiv);
+                // Show/hide details on check
                 cb.onchange = () => {
                   if (cb.checked) {
-                    if (!exp.activities[opt]) exp.activities[opt] = {};
-                    detailDiv.style.display = 'block';
+                    detailsDiv.style.display = 'block';
+                    exp._activities[opt] = detailsInput.value;
                   } else {
-                    detailDiv.style.display = 'none';
-                    delete exp.activities[opt];
+                    detailsDiv.style.display = 'none';
+                    delete exp._activities[opt];
                   }
                 };
               });
-              card.appendChild(groupWrap);
+              card.appendChild(groupDiv);
               return;
             }
-            // Default field rendering
-            const lbl = document.createElement('label');
-            lbl.innerText = f.label;
-            lbl.htmlFor = f.name + '_' + idx;
-            card.appendChild(lbl);
+            // ...existing code for other field types...
             let inp;
             if (f.type === 'textarea') {
               inp = document.createElement('textarea');
@@ -848,7 +843,11 @@ function startForm(formDataRaw) {
       form._getExperiences = () => experiences.map(exp => {
         const obj = {};
         group.fields.forEach(f => {
-          if (f.type === 'file') {
+          if (f.type === 'checkbox' && Array.isArray(f.options)) {
+            // Store checked activities and their details
+            obj[f.name] = Object.keys(exp._activities || {});
+            obj[f.name + '_details'] = exp._activities || {};
+          } else if (f.type === 'file') {
             obj[f.name] = exp[f.name] || null;
           } else {
             obj[f.name] = exp[f.name] || '';
