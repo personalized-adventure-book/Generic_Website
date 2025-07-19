@@ -1060,11 +1060,15 @@ function startForm(formDataRaw) {
 
   let currentStep = 0;
   const formData = {};
+  // Store per-step user input for restoration
+  const formStepsData = [];
 
   function renderStep(stepIndex) {
     const step = steps[stepIndex];
     main.innerHTML = '';
     const form = document.createElement("form");
+    // Restore previous step data if available
+    const prevStepData = formStepsData[stepIndex] || {};
     // --- Form header with only title and close button ---
     const formHeader = document.createElement('div');
     formHeader.style.display = 'flex';
@@ -1131,40 +1135,39 @@ function startForm(formDataRaw) {
     form.onsubmit = e => {
       e.preventDefault();
       // Collect all fields
+      const stepData = {};
       (step.fields || []).forEach(field => {
         if (field.type === "radio") {
           const checked = form.querySelector(`input[name='${field.name}']:checked`);
-          if (checked) formData[field.name] = checked.value;
+          if (checked) stepData[field.name] = checked.value;
         } else if (field.type === "checkbox" && Array.isArray(field.options)) {
-          // Multiple checkboxes
-          formData[field.name] = Array.from(form.querySelectorAll(`input[name='${field.name}']:checked`)).map(el => el.value);
+          stepData[field.name] = Array.from(form.querySelectorAll(`input[name='${field.name}']:checked`)).map(el => el.value);
         } else if (field.type === "adventure_selector") {
-          // Card selection
-          formData[field.name] = adventureCardSelected;
+          stepData[field.name] = adventureCardSelected;
         } else if (field.type === "tags") {
-          formData[field.name] = form.querySelector(`[name='${field.name}']`).value.split(/,|\n/).map(s => s.trim()).filter(Boolean);
+          stepData[field.name] = form.querySelector(`[name='${field.name}']`).value.split(/,|\n/).map(s => s.trim()).filter(Boolean);
         } else {
           const el = form.querySelector(`[name='${field.name}']`);
-          if (el) formData[field.name] = el.value;
+          if (el) stepData[field.name] = el.value;
         }
       });
-
       // Dynamic add-more adventures (if present)
       if (dynamicCheckboxes.length) {
-        formData["extra_adventures"] = dynamicCheckboxes.map(cb => cb.value).filter(Boolean);
+        stepData["extra_adventures"] = dynamicCheckboxes.map(cb => cb.value).filter(Boolean);
       }
-
       // If repeatable group, collect experiences
       if (typeof form._getExperiences === 'function') {
-        formData.experiences = form._getExperiences();
+        stepData.experiences = form._getExperiences();
       }
-
+      // Save step data
+      formStepsData[stepIndex] = stepData;
+      // Merge into formData
+      Object.assign(formData, stepData);
       if (stepIndex < steps.length - 1) {
         currentStep++;
         renderStep(currentStep);
       } else {
         formData.id = id;
-        // Show confirmation page with details
         main.innerHTML = `<section style='max-width:520px;margin:2rem auto 0 auto;padding:2.5rem 2rem 2rem 2rem;text-align:center;border-radius:16px;box-shadow:0 4px 24px rgba(122,92,255,0.10);background:#fff;'>
           <h2 style='color:var(--clr-primary);margin-bottom:1.2rem;'>Thank you for your order!</h2>
           <div style='text-align:left;margin:0 auto;max-width:400px;'>
@@ -1194,7 +1197,6 @@ function startForm(formDataRaw) {
             </ul>
           </div>
         </section>`;
-        // Send to GAS
         fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec`, {
           method: "POST",
           mode: "no-cors",
@@ -1210,7 +1212,8 @@ function startForm(formDataRaw) {
     // Render repeatable group (e.g., experiences)
     if (step.repeatable_group) {
       const group = step.repeatable_group;
-      let experiences = [{}]; // At least one by default
+      // Restore previous experiences if available
+      let experiences = prevStepData.experiences ? JSON.parse(JSON.stringify(prevStepData.experiences)) : [{}];
       const expWrap = document.createElement('div');
       expWrap.className = 'repeatable-group';
       expWrap.style.display = 'flex';
@@ -1241,24 +1244,26 @@ function startForm(formDataRaw) {
             if (f.type === 'checkbox' && Array.isArray(f.options)) {
               if (!exp._activities) exp._activities = {};
               if (!exp._activityOptions) exp._activityOptions = [...f.options];
-              // --- Improved grid layout for checkboxes ---
+              // Restore checked activities
+              if (exp[f.name] && Array.isArray(exp[f.name])) {
+                exp[f.name].forEach(opt => {
+                  if (exp._activities[opt] === undefined) exp._activities[opt] = '';
+                });
+              }
               const grid = document.createElement('div');
               grid.className = 'activity-checkbox-grid';
               exp._activityOptions.forEach(opt => {
                 const item = document.createElement('div');
                 item.className = 'activity-checkbox-item' + (exp._activities[opt] !== undefined ? ' active' : '');
-                // Checkbox
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.name = f.name + '_' + idx;
                 cb.value = opt;
                 cb.id = f.name + '_' + idx + '_' + opt;
                 cb.checked = exp._activities[opt] !== undefined;
-                // Label
                 const cbLabel = document.createElement('label');
                 cbLabel.htmlFor = cb.id;
                 cbLabel.innerText = opt;
-                // Details box
                 const detailsDiv = document.createElement('div');
                 detailsDiv.className = 'activity-details-box';
                 detailsDiv.style.display = cb.checked ? 'block' : 'none';
@@ -1274,7 +1279,6 @@ function startForm(formDataRaw) {
                 };
                 detailsDiv.appendChild(detailsLabel);
                 detailsDiv.appendChild(detailsInput);
-                // Checkbox change handler
                 cb.onchange = () => {
                   if (cb.checked) {
                     detailsDiv.style.display = 'block';
@@ -1296,7 +1300,6 @@ function startForm(formDataRaw) {
               customWrap.style.display = 'flex';
               customWrap.style.flexDirection = 'column';
               customWrap.style.gap = '0.5rem';
-              // Row for input and button
               const customRow = document.createElement('div');
               customRow.className = 'custom-activity-row';
               const customInput = document.createElement('input');
@@ -1317,7 +1320,6 @@ function startForm(formDataRaw) {
               customRow.appendChild(customInput);
               customRow.appendChild(addCustomBtn);
               customWrap.appendChild(customRow);
-              // Wrap grid and custom input
               const groupDiv = document.createElement('div');
               groupDiv.appendChild(grid);
               groupDiv.appendChild(customWrap);
@@ -1336,7 +1338,6 @@ function startForm(formDataRaw) {
               inp.oninput = e => { experiences[idx][f.name] = inp.value; };
               card.appendChild(inp);
             } else if (f.type === 'file') {
-              // Modern file upload area
               const uploadArea = document.createElement('label');
               uploadArea.className = 'file-upload-area';
               uploadArea.htmlFor = f.name + '_' + idx;
@@ -1353,13 +1354,11 @@ function startForm(formDataRaw) {
               inp.id = f.name + '_' + idx;
               inp.required = !!f.required;
               inp.style.display = 'none';
-              // Show selected filenames
               inp.onchange = e => {
                 const files = Array.from(inp.files);
                 experiences[idx][f.name] = inp.files;
                 const fileNameSpan = uploadArea.querySelector('.file-upload-filename');
                 const thumbContainer = uploadArea.querySelector('.file-upload-thumbnails');
-                // Show filenames
                 if (files.length) {
                   fileNameSpan.style.display = 'block';
                   fileNameSpan.textContent = files.map(f => f.name).join(', ');
@@ -1367,7 +1366,6 @@ function startForm(formDataRaw) {
                   fileNameSpan.style.display = 'none';
                   fileNameSpan.textContent = '';
                 }
-                // Show thumbnails
                 thumbContainer.innerHTML = '';
                 files.forEach(file => {
                   if (file.type.startsWith('image/')) {
@@ -1382,7 +1380,6 @@ function startForm(formDataRaw) {
                   }
                 });
               };
-              // Drag and drop support
               uploadArea.ondragover = e => { e.preventDefault(); uploadArea.classList.add('dragover'); };
               uploadArea.ondragleave = e => { uploadArea.classList.remove('dragover'); };
               uploadArea.ondrop = e => {
@@ -1407,7 +1404,6 @@ function startForm(formDataRaw) {
               card.appendChild(inp);
             }
           });
-          // Remove button (if more than min)
           if (experiences.length > (group.min || 1)) {
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
@@ -1424,7 +1420,6 @@ function startForm(formDataRaw) {
         });
       }
       renderExperiences();
-      // Add Experience button
       const addBtn = document.createElement('button');
       addBtn.type = 'button';
       addBtn.innerText = 'Add Experience';
@@ -1436,12 +1431,10 @@ function startForm(formDataRaw) {
       };
       form.appendChild(expWrap);
       form.appendChild(addBtn);
-      // On submit, collect all experiences
       form._getExperiences = () => experiences.map(exp => {
         const obj = {};
         group.fields.forEach(f => {
           if (f.type === 'checkbox' && Array.isArray(f.options)) {
-            // Store checked activities and their details
             obj[f.name] = Object.keys(exp._activities || {});
             obj[f.name + '_details'] = exp._activities || {};
           } else if (f.type === 'file') {
@@ -1460,13 +1453,11 @@ function startForm(formDataRaw) {
       repeatableFieldNames = step.repeatable_group.fields.map(f => f.name);
     }
     (step.fields || []).forEach(field => {
-      if (repeatableFieldNames.includes(field.name)) return; // skip fields that are part of repeatable_group
-
+      if (repeatableFieldNames.includes(field.name)) return;
       const label = document.createElement("label");
       label.htmlFor = field.name;
       label.innerText = field.label;
       form.appendChild(label);
-
       // Gender radio group
       if (field.type === "radio" && Array.isArray(field.options)) {
         const group = document.createElement("div");
@@ -1478,6 +1469,7 @@ function startForm(formDataRaw) {
           radio.value = opt;
           radio.id = field.name + '_' + opt;
           radio.required = !!field.required;
+          if (prevStepData[field.name] && prevStepData[field.name] === opt) radio.checked = true;
           const radioLabel = document.createElement("label");
           radioLabel.htmlFor = radio.id;
           radioLabel.innerText = opt;
@@ -1487,7 +1479,6 @@ function startForm(formDataRaw) {
         form.appendChild(group);
         return;
       }
-
       // Adventure type as cards (support object options)
       if (field.type === "adventure_selector" && Array.isArray(field.options)) {
         const cardWrap = document.createElement("div");
@@ -1496,7 +1487,6 @@ function startForm(formDataRaw) {
           let title = typeof opt === 'object' && opt.title ? opt.title : String(opt);
           let desc = typeof opt === 'object' && opt.description ? opt.description : '';
           let icon = typeof opt === 'object' && opt.icon ? opt.icon : '🗺️';
-          // Emoji fallback for some common icon names
           const emojiMap = { rocket: '🚀', tree: '🌳', crown: '👑', anchor: '⚓', bolt: '⚡', heart: '💖' };
           if (icon && emojiMap[icon]) icon = emojiMap[icon];
           const card = document.createElement("div");
@@ -1504,6 +1494,10 @@ function startForm(formDataRaw) {
           card.tabIndex = 0;
           card.style.cursor = "pointer";
           card.innerHTML = `<span class='adventure-icon animated-icon'>${icon}</span><span class='adventure-card-title'>${title}</span>${desc ? `<span class='adventure-card-desc'>${desc}</span>` : ''}`;
+          if (prevStepData[field.name] && prevStepData[field.name] === title) {
+            card.classList.add('selected');
+            adventureCardSelected = title;
+          }
           card.onclick = () => {
             adventureCardSelected = title;
             Array.from(cardWrap.children).forEach(c => c.classList.remove('selected'));
@@ -1512,14 +1506,12 @@ function startForm(formDataRaw) {
           card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { card.onclick(); } };
           cardWrap.appendChild(card);
         });
-        // Style for selected
         const style = document.createElement('style');
         style.innerHTML = `.adventure-card.selected { border:2.5px solid var(--clr-primary); box-shadow:0 4px 16px rgba(122,92,255,0.18); }`;
         document.head.appendChild(style);
         form.appendChild(cardWrap);
         return;
       }
-
       // Checkbox group for activities
       if (field.type === "checkbox" && Array.isArray(field.options)) {
         const group = document.createElement("div");
@@ -1530,6 +1522,7 @@ function startForm(formDataRaw) {
           cb.name = field.name;
           cb.value = opt;
           cb.id = field.name + '_' + opt;
+          if (prevStepData[field.name] && prevStepData[field.name].includes(opt)) cb.checked = true;
           const cbLabel = document.createElement("label");
           cbLabel.htmlFor = cb.id;
           cbLabel.innerText = opt;
@@ -1539,7 +1532,6 @@ function startForm(formDataRaw) {
         form.appendChild(group);
         return;
       }
-
       // Dynamic add-more for adventures (tags or text)
       if (field.type === "tags" || field.type === "add_more") {
         const wrap = document.createElement('div');
@@ -1551,8 +1543,8 @@ function startForm(formDataRaw) {
         input.name = field.name;
         input.id = field.name;
         input.placeholder = field.placeholder || 'Add more...';
+        if (prevStepData[field.name]) input.value = prevStepData[field.name].join(', ');
         wrap.appendChild(input);
-        // Add button to add more fields
         const addBtn = document.createElement('button');
         addBtn.type = 'button';
         addBtn.innerText = 'Add More';
@@ -1570,7 +1562,6 @@ function startForm(formDataRaw) {
         form.appendChild(wrap);
         return;
       }
-
       // Default: select, textarea, range, text, etc.
       let input;
       if (field.type === "select") {
@@ -1581,18 +1572,21 @@ function startForm(formDataRaw) {
           option.innerText = opt;
           input.appendChild(option);
         });
+        if (prevStepData[field.name]) input.value = prevStepData[field.name];
       } else if (field.type === "textarea") {
         input = document.createElement("textarea");
+        if (prevStepData[field.name]) input.value = prevStepData[field.name];
       } else if (field.type === "range") {
         input = document.createElement("input");
         input.type = "range";
         input.min = field.min || 1;
         input.max = field.max || 100;
-        input.value = field.default || input.min;
+        input.value = prevStepData[field.name] || field.default || input.min;
       } else {
         input = document.createElement("input");
         input.type = field.type;
         if (field.maxLength) input.maxLength = field.maxLength;
+        if (prevStepData[field.name]) input.value = prevStepData[field.name];
       }
       input.id = input.name = field.name;
       input.required = !!field.required;
