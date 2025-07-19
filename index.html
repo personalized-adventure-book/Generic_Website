@@ -571,6 +571,66 @@
     box-shadow: 0 2px 8px rgba(122, 92, 255, 0.10);
   }
 
+  /* --- Modern File Upload Area --- */
+  .file-upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--clr-info);
+    background: #f7f8fa;
+    border-radius: 14px;
+    padding: 1.2rem 1rem;
+    margin-bottom: 0.7rem;
+    margin-top: 0.2rem;
+    transition: border-color 0.2s cubic-bezier(.4,0,.2,1), background 0.2s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+    position: relative;
+    min-height: 90px;
+    box-shadow: 0 1px 4px rgba(61,220,255,0.06);
+  }
+  .file-upload-area.dragover {
+    border-color: var(--clr-primary);
+    background: #e9faff;
+  }
+  .file-upload-area input[type="file"] {
+    display: none;
+  }
+  .file-upload-label {
+    color: var(--clr-info);
+    font-weight: 600;
+    font-size: 1.08rem;
+    margin-bottom: 0.4rem;
+    text-align: center;
+    cursor: pointer;
+    display: block;
+  }
+  .file-upload-area .file-upload-icon {
+    font-size: 2.1rem;
+    margin-bottom: 0.3rem;
+    color: var(--clr-primary);
+    opacity: 0.7;
+  }
+  .file-upload-area .file-upload-filename {
+    color: var(--clr-dark);
+    font-size: 0.98rem;
+    margin-top: 0.3rem;
+    text-align: center;
+    word-break: break-all;
+  }
+  @media (max-width: 600px) {
+    .file-upload-area {
+      padding: 0.7rem 0.3rem;
+      min-height: 60px;
+    }
+    .file-upload-label {
+      font-size: 1rem;
+    }
+    .file-upload-area .file-upload-icon {
+      font-size: 1.5rem;
+    }
+  }
+
   /* --- Improved Activity Checkbox Grid --- */
   .activity-checkbox-grid {
     display: grid;
@@ -1076,21 +1136,66 @@ function startForm(formDataRaw) {
             if (f.type === 'textarea') {
               inp = document.createElement('textarea');
               inp.value = exp[f.name] || '';
+              inp.name = f.name;
+              inp.id = f.name + '_' + idx;
+              inp.placeholder = f.placeholder || '';
+              inp.required = !!f.required;
+              inp.oninput = e => { experiences[idx][f.name] = inp.value; };
+              card.appendChild(inp);
             } else if (f.type === 'file') {
+              // Modern file upload area
+              const uploadArea = document.createElement('label');
+              uploadArea.className = 'file-upload-area';
+              uploadArea.htmlFor = f.name + '_' + idx;
+              uploadArea.innerHTML = `
+                <span class="file-upload-icon">📷</span>
+                <span class="file-upload-label">Upload Images (You can select multiple)</span>
+                <span class="file-upload-filename" style="display:none;"></span>
+              `;
               inp = document.createElement('input');
               inp.type = 'file';
               inp.multiple = true;
+              inp.name = f.name;
+              inp.id = f.name + '_' + idx;
+              inp.required = !!f.required;
+              inp.style.display = 'none';
+              // Show selected filenames
+              inp.onchange = e => {
+                const files = Array.from(inp.files);
+                experiences[idx][f.name] = inp.files;
+                const fileNameSpan = uploadArea.querySelector('.file-upload-filename');
+                if (files.length) {
+                  fileNameSpan.style.display = 'block';
+                  fileNameSpan.textContent = files.map(f => f.name).join(', ');
+                } else {
+                  fileNameSpan.style.display = 'none';
+                  fileNameSpan.textContent = '';
+                }
+              };
+              // Drag and drop support
+              uploadArea.ondragover = e => { e.preventDefault(); uploadArea.classList.add('dragover'); };
+              uploadArea.ondragleave = e => { uploadArea.classList.remove('dragover'); };
+              uploadArea.ondrop = e => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files && e.dataTransfer.files.length) {
+                  inp.files = e.dataTransfer.files;
+                  inp.dispatchEvent(new Event('change'));
+                }
+              };
+              uploadArea.appendChild(inp);
+              card.appendChild(uploadArea);
             } else {
               inp = document.createElement('input');
               inp.type = f.type;
               inp.value = exp[f.name] || '';
+              inp.name = f.name;
+              inp.id = f.name + '_' + idx;
+              inp.placeholder = f.placeholder || '';
+              inp.required = !!f.required;
+              inp.oninput = e => { experiences[idx][f.name] = inp.value; };
+              card.appendChild(inp);
             }
-            inp.name = f.name;
-            inp.id = f.name + '_' + idx;
-            inp.placeholder = f.placeholder || '';
-            inp.required = !!f.required;
-            inp.oninput = e => { experiences[idx][f.name] = inp.type === 'file' ? inp.files : inp.value; };
-            card.appendChild(inp);
           });
           // Remove button (if more than min)
           if (experiences.length > (group.min || 1)) {
