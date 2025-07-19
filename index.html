@@ -758,9 +758,10 @@ function startForm(formDataRaw) {
             if (f.type === 'checkbox' && Array.isArray(f.options)) {
               // Store checked activities in exp._activities = {activity: details}
               if (!exp._activities) exp._activities = {};
+              if (!exp._activityOptions) exp._activityOptions = [...f.options]; // per-experience options
               const groupDiv = document.createElement('div');
               groupDiv.className = 'form-radio-group';
-              f.options.forEach(opt => {
+              exp._activityOptions.forEach(opt => {
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.name = f.name + '_' + idx;
@@ -780,7 +781,6 @@ function startForm(formDataRaw) {
                 detailsDiv.style.background = '#f7f8fa';
                 detailsDiv.style.borderRadius = '10px';
                 detailsDiv.style.boxShadow = '0 1px 4px rgba(122,92,255,0.06)';
-                // You can customize the fields here (e.g., textarea for notes)
                 const detailsLabel = document.createElement('label');
                 detailsLabel.innerText = opt + ' details';
                 detailsLabel.style.fontWeight = '500';
@@ -800,7 +800,6 @@ function startForm(formDataRaw) {
                 detailsDiv.appendChild(detailsLabel);
                 detailsDiv.appendChild(detailsInput);
                 groupDiv.appendChild(detailsDiv);
-                // Show/hide details on check
                 cb.onchange = () => {
                   if (cb.checked) {
                     detailsDiv.style.display = 'block';
@@ -811,6 +810,30 @@ function startForm(formDataRaw) {
                   }
                 };
               });
+              // --- Add custom activity input/button per experience ---
+              const customWrap = document.createElement('div');
+              customWrap.style.display = 'flex';
+              customWrap.style.flexDirection = 'column';
+              customWrap.style.gap = '0.5rem';
+              const customInput = document.createElement('input');
+              customInput.type = 'text';
+              customInput.placeholder = 'Add custom activity...';
+              customInput.style.marginTop = '0.5rem';
+              const addCustomBtn = document.createElement('button');
+              addCustomBtn.type = 'button';
+              addCustomBtn.innerText = 'Add More';
+              addCustomBtn.className = 'btn info';
+              addCustomBtn.onclick = () => {
+                const val = customInput.value.trim();
+                if (val && !exp._activityOptions.includes(val)) {
+                  exp._activityOptions.push(val);
+                  customInput.value = '';
+                  renderExperiences();
+                }
+              };
+              customWrap.appendChild(customInput);
+              customWrap.appendChild(addCustomBtn);
+              groupDiv.appendChild(customWrap);
               card.appendChild(groupDiv);
               return;
             }
