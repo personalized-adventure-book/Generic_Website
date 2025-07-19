@@ -671,6 +671,11 @@ function startForm(formDataRaw) {
         formData["extra_adventures"] = dynamicCheckboxes.map(cb => cb.value).filter(Boolean);
       }
 
+      // If repeatable group, collect experiences
+      if (typeof form._getExperiences === 'function') {
+        formData.experiences = form._getExperiences();
+      }
+
       if (stepIndex < steps.length - 1) {
         currentStep++;
         renderStep(currentStep);
@@ -682,7 +687,27 @@ function startForm(formDataRaw) {
           <div style='text-align:left;margin:0 auto;max-width:400px;'>
             <h3 style='color:var(--clr-secondary);margin-bottom:0.7rem;'>Order Details</h3>
             <ul style='list-style:none;padding:0;'>
-              ${Object.entries(formData).map(([k,v]) => `<li style='margin-bottom:0.5em;'><strong style='color:var(--clr-primary);'>${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${Array.isArray(v) ? v.join(", ") : v}</li>`).join('')}
+              ${Object.entries(formData).map(([k,v]) => {
+                if (k === 'experiences' && Array.isArray(v)) {
+                  return `<li style='margin-bottom:0.5em;'><strong style='color:var(--clr-primary);'>Experiences:</strong><ul style='margin:0.3em 0 0.7em 1.2em;padding:0;'>` +
+                    v.map((exp, i) => `<li style='margin-bottom:0.4em;'><strong style='color:var(--clr-info);'>Experience ${i+1}:</strong><ul style='margin:0.2em 0 0.2em 1em;padding:0;'>` +
+                      Object.entries(exp).map(([ek,ev]) => {
+                        if (ek.endsWith('_details') && typeof ev === 'object') {
+                          return `<li><strong>${ek.replace(/_/g,' ').replace(' details','').replace(/\b\w/g,c=>c.toUpperCase())}:</strong><ul style='margin:0.2em 0 0.2em 1em;padding:0;'>` +
+                            Object.entries(ev).map(([act,det]) => `<li><strong>${act}:</strong> ${det}</li>`).join('') +
+                          `</ul></li>`;
+                        } else if (Array.isArray(ev)) {
+                          return `<li><strong>${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${ev.join(', ')}</li>`;
+                        } else {
+                          return `<li><strong>${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${ev}</li>`;
+                        }
+                      }).join('') +
+                    `</ul></li>`).join('') +
+                  `</ul></li>`;
+                } else {
+                  return `<li style='margin-bottom:0.5em;'><strong style='color:var(--clr-primary);'>${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${Array.isArray(v) ? v.join(", ") : v}</li>`;
+                }
+              }).join('')}
             </ul>
           </div>
         </section>`;
