@@ -1002,6 +1002,118 @@
       font-size: 0.97rem;
     }
   }
+    /* --- Order Review (Thank You) Page Styles --- */
+    .order-review-card {
+      max-width: 540px;
+      margin: 2.5rem auto 0 auto;
+      padding: 2.5rem 2rem 2.2rem 2rem;
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(122,92,255,0.13);
+      background: linear-gradient(120deg,#f7f5ff 60%,#fff 100%);
+      text-align: left;
+      font-family: 'Inter',sans-serif;
+    }
+    .order-review-header {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+    .order-review-header h2 {
+      color: var(--clr-primary);
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 0;
+    }
+    .order-review-icon {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg,var(--clr-primary),var(--clr-secondary));
+      border-radius: 50%;
+      padding: 0.5rem 0.7rem;
+      box-shadow: 0 2px 12px rgba(122,92,255,0.10);
+    }
+    .order-review-details {
+      max-width: 440px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(122,92,255,0.07);
+      padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+    }
+    .order-review-details h3 {
+      color: var(--clr-secondary);
+      margin-bottom: 1.1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .order-review-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .order-review-item {
+      margin-bottom: 0.7em;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5em;
+    }
+    .order-review-label {
+      color: var(--clr-primary);
+      font-weight: 600;
+      min-width: 120px;
+      display: inline-block;
+    }
+    .order-review-value {
+      color: #333;
+      font-weight: 500;
+    }
+    .order-review-section {
+      margin-bottom: 1.2em;
+    }
+    .order-experiences-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1em;
+    }
+    .order-experience-card {
+      background: linear-gradient(120deg,#f3f0ff 60%,#fff 100%);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(122,92,255,0.07);
+      padding: 1.1em 1em 0.7em 1em;
+      margin-bottom: 0.2em;
+    }
+    .order-experience-title {
+      color: var(--clr-info);
+      font-weight: 700;
+      font-size: 1.1em;
+      margin-bottom: 0.5em;
+    }
+    .order-experience-details {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .order-activity-details {
+      list-style: disc inside;
+      margin: 0.2em 0 0.2em 1.2em;
+      color: #444;
+    }
+    .order-activity-name {
+      color: var(--clr-primary);
+      font-weight: 600;
+    }
+    .order-activity-detail {
+      color: #333;
+    }
+    @media (max-width: 600px) {
+      .order-review-card {
+        padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+      }
+      .order-review-details {
+        padding: 1rem 0.5rem 0.7rem 0.5rem;
+      }
+    }
 
   </style>
 </head>
@@ -1187,35 +1299,50 @@ function startForm(formDataRaw) {
         renderStep(currentStep);
       } else {
         formData.id = id;
-        main.innerHTML = `<section style='max-width:520px;margin:2rem auto 0 auto;padding:2.5rem 2rem 2rem 2rem;text-align:center;border-radius:16px;box-shadow:0 4px 24px rgba(122,92,255,0.10);background:#fff;'>
-          <h2 style='color:var(--clr-primary);margin-bottom:1.2rem;'>Thank you for your order!</h2>
-          <div style='text-align:left;margin:0 auto;max-width:400px;'>
-            <h3 style='color:var(--clr-secondary);margin-bottom:0.7rem;'>Order Details</h3>
-            <ul style='list-style:none;padding:0;'>
+        main.innerHTML = `
+        <section class="order-review-card">
+          <div class="order-review-header">
+            <span class="order-review-icon">🎉</span>
+            <h2>Thank you for your order!</h2>
+          </div>
+          <div class="order-review-details">
+            <h3>Order Details</h3>
+            <ul class="order-review-list">
               ${Object.entries(formData).map(([k,v]) => {
                 if (k === 'experiences' && Array.isArray(v)) {
-                  return `<li style='margin-bottom:0.5em;'><strong style='color:var(--clr-primary);'>Experiences:</strong><ul style='margin:0.3em 0 0.7em 1.2em;padding:0;'>` +
-                    v.map((exp, i) => `<li style='margin-bottom:0.4em;'><strong style='color:var(--clr-info);'>Experience ${i+1}:</strong><ul style='margin:0.2em 0 0.2em 1em;padding:0;'>` +
-                      Object.entries(exp).map(([ek,ev]) => {
-                        if (ek.endsWith('_details') && typeof ev === 'object') {
-                          return `<li><strong>${ek.replace(/_/g,' ').replace(' details','').replace(/\b\w/g,c=>c.toUpperCase())}:</strong><ul style='margin:0.2em 0 0.2em 1em;padding:0;'>` +
-                            Object.entries(ev).map(([act,det]) => `<li><strong>${act}:</strong> ${det}</li>`).join('') +
-                          `</ul></li>`;
-                        } else if (Array.isArray(ev)) {
-                          return `<li><strong>${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${ev.join(', ')}</li>`;
-                        } else {
-                          return `<li><strong>${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${ev}</li>`;
-                        }
-                      }).join('') +
-                    `</ul></li>`).join('') +
-                  `</ul></li>`;
+                  return `<li class="order-review-section"><span class="order-review-label">Experiences:</span><div class="order-experiences-list">` +
+                    v.map((exp, i) => `
+                      <div class="order-experience-card">
+                        <div class="order-experience-title"><span>Experience ${i+1}</span></div>
+                        <ul class="order-experience-details">
+                          ${Object.entries(exp).map(([ek,ev]) => {
+                            if (ek.endsWith('_details') && typeof ev === 'object') {
+                              return `<li><span class="order-review-label">${ek.replace(/_/g,' ').replace(' details','').replace(/\b\w/g,c=>c.toUpperCase())}:</span>
+                                <ul class="order-activity-details">
+                                  ${Object.entries(ev).map(([act,det]) => `<li><span class="order-activity-name">${act}:</span> <span class="order-activity-detail">${det}</span></li>`).join('')}
+                                </ul>
+                              </li>`;
+                            } else if (Array.isArray(ev)) {
+                              return `<li><span class="order-review-label">${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span> <span class="order-review-value">${ev.join(', ')}</span></li>`;
+                            } else if (ek.toLowerCase().includes('image') && ev && typeof ev === 'object' && ev.length) {
+                              // Show thumbnails if possible
+                              return `<li><span class="order-review-label">${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span> <span class="order-review-value">[${ev.length} image(s)]</span></li>`;
+                            } else {
+                              return `<li><span class="order-review-label">${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span> <span class="order-review-value">${ev}</span></li>`;
+                            }
+                          }).join('')}
+                        </ul>
+                      </div>
+                    `).join('') +
+                  `</div></li>`;
                 } else {
-                  return `<li style='margin-bottom:0.5em;'><strong style='color:var(--clr-primary);'>${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</strong> ${Array.isArray(v) ? v.join(", ") : v}</li>`;
+                  return `<li class="order-review-item"><span class="order-review-label">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span> <span class="order-review-value">${Array.isArray(v) ? v.join(", ") : v}</span></li>`;
                 }
               }).join('')}
             </ul>
           </div>
-        </section>`;
+        </section>
+        `;
         fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec`, {
           method: "POST",
           mode: "no-cors",
