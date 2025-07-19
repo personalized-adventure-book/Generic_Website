@@ -1004,48 +1004,52 @@
   }
     /* --- Order Review (Thank You) Page Styles --- */
     .order-review-card {
-      max-width: 540px;
-      margin: 2.5rem auto 0 auto;
-      padding: 2.5rem 2rem 2.2rem 2rem;
-      border-radius: 20px;
-      box-shadow: 0 6px 32px rgba(122,92,255,0.13);
+      max-width: 600px;
+      margin: 3.5rem auto 0 auto;
+      padding: 2.8rem 2.2rem 2.5rem 2.2rem;
+      border-radius: 28px;
+      box-shadow: 0 10px 40px rgba(122,92,255,0.15);
       background: linear-gradient(120deg,#f7f5ff 60%,#fff 100%);
       text-align: left;
       font-family: 'Inter',sans-serif;
+      border: 2.5px solid #ede7ff;
     }
     .order-review-header {
       display: flex;
       align-items: center;
       gap: 1.1rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2.2rem;
       justify-content: center;
     }
     .order-review-header h2 {
       color: var(--clr-primary);
-      font-size: 2rem;
-      font-weight: 800;
+      font-size: 2.2rem;
+      font-weight: 900;
       margin: 0;
+      letter-spacing: -1px;
     }
     .order-review-icon {
-      font-size: 2.5rem;
+      font-size: 2.7rem;
       background: linear-gradient(90deg,var(--clr-primary),var(--clr-secondary));
       border-radius: 50%;
-      padding: 0.5rem 0.7rem;
-      box-shadow: 0 2px 12px rgba(122,92,255,0.10);
+      padding: 0.7rem 1rem;
+      box-shadow: 0 2px 16px rgba(122,92,255,0.13);
     }
     .order-review-details {
-      max-width: 440px;
+      max-width: 480px;
       margin: 0 auto;
       background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 2px 12px rgba(122,92,255,0.07);
-      padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+      border-radius: 18px;
+      box-shadow: 0 2px 18px rgba(122,92,255,0.09);
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      border: 1.5px solid #ede7ff;
     }
     .order-review-details h3 {
       color: var(--clr-secondary);
-      margin-bottom: 1.1rem;
-      font-size: 1.25rem;
-      font-weight: 700;
+      margin-bottom: 1.3rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
     .order-review-list {
       list-style: none;
@@ -1053,41 +1057,51 @@
       margin: 0;
     }
     .order-review-item {
-      margin-bottom: 0.7em;
+      margin-bottom: 1.1em;
       display: flex;
       align-items: flex-start;
-      gap: 0.5em;
+      gap: 1.2em;
+      background: #f7f5ff;
+      border-radius: 8px;
+      padding: 0.7em 1em 0.7em 1em;
+      box-shadow: 0 1px 6px rgba(122,92,255,0.06);
     }
     .order-review-label {
       color: var(--clr-primary);
-      font-weight: 600;
-      min-width: 120px;
+      font-weight: 700;
+      min-width: 140px;
       display: inline-block;
+      font-size: 1.04em;
     }
     .order-review-value {
       color: #333;
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 1.04em;
     }
     .order-review-section {
-      margin-bottom: 1.2em;
+      margin-bottom: 2em;
+      background: #f3f0ff;
+      border-radius: 10px;
+      padding: 1.1em 1.2em 1.1em 1.2em;
+      box-shadow: 0 1px 8px rgba(122,92,255,0.07);
     }
     .order-experiences-list {
       display: flex;
       flex-direction: column;
-      gap: 1.1em;
+      gap: 1.3em;
     }
     .order-experience-card {
-      background: linear-gradient(120deg,#f3f0ff 60%,#fff 100%);
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(122,92,255,0.07);
-      padding: 1.1em 1em 0.7em 1em;
-      margin-bottom: 0.2em;
+      background: linear-gradient(120deg,#f7f5ff 60%,#fff 100%);
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(122,92,255,0.09);
+      padding: 1.3em 1.2em 1em 1.2em;
+      margin-bottom: 0.4em;
     }
     .order-experience-title {
       color: var(--clr-info);
-      font-weight: 700;
-      font-size: 1.1em;
-      margin-bottom: 0.5em;
+      font-weight: 800;
+      font-size: 1.13em;
+      margin-bottom: 0.7em;
     }
     .order-experience-details {
       list-style: none;
@@ -1098,13 +1112,15 @@
       list-style: disc inside;
       margin: 0.2em 0 0.2em 1.2em;
       color: #444;
+      font-size: 0.98em;
     }
     .order-activity-name {
       color: var(--clr-primary);
-      font-weight: 600;
+      font-weight: 700;
     }
     .order-activity-detail {
       color: #333;
+      font-weight: 500;
     }
     @media (max-width: 600px) {
       .order-review-card {
