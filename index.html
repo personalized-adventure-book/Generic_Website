@@ -978,31 +978,12 @@ function startForm(formDataRaw) {
     const step = steps[stepIndex];
     main.innerHTML = '';
     const form = document.createElement("form");
-    // --- Form header with back and close buttons ---
+    // --- Form header with only title and close button ---
     const formHeader = document.createElement('div');
     formHeader.style.display = 'flex';
     formHeader.style.alignItems = 'center';
     formHeader.style.justifyContent = 'space-between';
     formHeader.style.marginBottom = '1.1rem';
-    // Back button (not on first step)
-    if (stepIndex > 0) {
-      const backBtn = document.createElement('button');
-      backBtn.type = 'button';
-      backBtn.innerHTML = '← Back';
-      backBtn.className = 'btn info';
-      backBtn.style.padding = '0.4rem 1.1rem';
-      backBtn.style.fontSize = '0.98rem';
-      backBtn.onclick = () => {
-        currentStep--;
-        renderStep(currentStep);
-      };
-      formHeader.appendChild(backBtn);
-    } else {
-      // Spacer for alignment
-      const spacer = document.createElement('div');
-      spacer.style.width = '70px';
-      formHeader.appendChild(spacer);
-    }
     // Title
     const stepTitle = document.createElement('h2');
     stepTitle.innerText = step.title;
@@ -1012,7 +993,7 @@ function startForm(formDataRaw) {
     stepTitle.style.color = 'var(--clr-primary)';
     stepTitle.style.letterSpacing = '-1px';
     formHeader.appendChild(stepTitle);
-    // X (close) button
+    // X (close) button with confirmation
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.innerHTML = '&times;';
@@ -1029,11 +1010,15 @@ function startForm(formDataRaw) {
     closeBtn.style.justifyContent = 'center';
     closeBtn.style.marginLeft = '1.1rem';
     closeBtn.onclick = () => {
-      // Reset to homepage/hero
-      if (homepageRowCache && typeof init === 'function') {
-        init(homepageRowCache);
-      } else {
-        main.innerHTML = '<div class="section-divider"></div>';
+      if (confirm('Are you sure you want to cancel your order and return to the homepage?')) {
+        // Simulate logo click: reset to homepage/hero
+        const logo = document.getElementById('site-logo');
+        if (logo) logo.click();
+        else if (homepageRowCache && typeof init === 'function') {
+          init(homepageRowCache);
+        } else {
+          main.innerHTML = '<div class="section-divider"></div>';
+        }
       }
     };
     formHeader.appendChild(closeBtn);
@@ -1514,11 +1499,40 @@ function startForm(formDataRaw) {
       form.appendChild(input);
     });
 
+    // --- Form footer with next/submit and back button ---
+    const formFooter = document.createElement('div');
+    formFooter.style.display = 'flex';
+    formFooter.style.justifyContent = 'flex-end';
+    formFooter.style.alignItems = 'center';
+    formFooter.style.gap = '0.7rem';
+    formFooter.style.marginTop = '1.2rem';
+    // Back button (not on first step)
+    if (stepIndex > 0) {
+      const backBtn = document.createElement('button');
+      backBtn.type = 'button';
+      backBtn.innerHTML = '← Back';
+      backBtn.className = 'btn form-back-btn';
+      backBtn.style.background = '#e9e6ff';
+      backBtn.style.color = 'var(--clr-muted)';
+      backBtn.style.fontWeight = '600';
+      backBtn.style.border = '1.2px solid #ede7ff';
+      backBtn.style.boxShadow = 'none';
+      backBtn.style.fontSize = '1.01rem';
+      backBtn.style.padding = '0.5rem 1.2rem';
+      backBtn.onmouseover = () => { backBtn.style.background = '#f3f0ff'; };
+      backBtn.onmouseout = () => { backBtn.style.background = '#e9e6ff'; };
+      backBtn.onclick = () => {
+        currentStep--;
+        renderStep(currentStep);
+      };
+      formFooter.appendChild(backBtn);
+    }
     const nextBtn = document.createElement("button");
     nextBtn.type = "submit";
     nextBtn.innerText = stepIndex < steps.length - 1 ? "Next" : "Submit";
     nextBtn.className = "btn";
-    form.appendChild(nextBtn);
+    formFooter.appendChild(nextBtn);
+    form.appendChild(formFooter);
 
     main.appendChild(form);
   }
