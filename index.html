@@ -882,8 +882,14 @@ function startForm(formDataRaw) {
       });
     }
 
-    // Render all fields (after repeatable group)
+    // If repeatable_group, do not render its fields globally
+    let repeatableFieldNames = [];
+    if (step.repeatable_group && Array.isArray(step.repeatable_group.fields)) {
+      repeatableFieldNames = step.repeatable_group.fields.map(f => f.name);
+    }
     (step.fields || []).forEach(field => {
+      if (repeatableFieldNames.includes(field.name)) return; // skip fields that are part of repeatable_group
+
       const label = document.createElement("label");
       label.htmlFor = field.name;
       label.innerText = field.label;
