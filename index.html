@@ -571,6 +571,91 @@
     box-shadow: 0 2px 8px rgba(122, 92, 255, 0.10);
   }
 
+  /* --- Improved Activity Checkbox Grid --- */
+  .activity-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.7rem 1.2rem;
+    margin-bottom: 0.7rem;
+    margin-top: 0.2rem;
+  }
+  .activity-checkbox-item {
+    display: flex;
+    align-items: flex-start;
+    background: #f7f8fa;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(122,92,255,0.06);
+    padding: 0.7rem 0.9rem 0.7rem 0.7rem;
+    position: relative;
+    transition: box-shadow 0.18s cubic-bezier(.4,0,.2,1), border 0.18s cubic-bezier(.4,0,.2,1);
+    border: 1.2px solid #ede7ff;
+    min-height: 48px;
+    margin-bottom: 0.1rem;
+  }
+  .activity-checkbox-item input[type="checkbox"] {
+    margin-top: 0.18em;
+    margin-right: 0.7em;
+    accent-color: var(--clr-primary);
+    flex-shrink: 0;
+  }
+  .activity-checkbox-item label {
+    font-weight: 600;
+    color: var(--clr-dark);
+    font-size: 1.04rem;
+    margin-bottom: 0;
+    cursor: pointer;
+    flex: 1 1 auto;
+    user-select: none;
+  }
+  .activity-checkbox-item.active {
+    border: 2px solid var(--clr-info);
+    box-shadow: 0 4px 16px rgba(61,220,255,0.10);
+    background: #e9faff;
+  }
+  .activity-details-box {
+    margin-top: 0.5rem;
+    margin-left: 0;
+    padding: 0.7rem 0.7rem 0.7rem 0.7rem;
+    background: #f7f8fa;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(122,92,255,0.06);
+    border: 1.2px solid #d1c4e9;
+    width: 100%;
+  }
+  .activity-details-box label {
+    color: var(--clr-info);
+    font-weight: 500;
+    font-size: 0.98rem;
+    margin-bottom: 0.2rem;
+    display: block;
+  }
+  .activity-details-box textarea {
+    margin-top: 0.3rem;
+    min-height: 60px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1.2px solid #d1c4e9;
+    font-size: 0.98rem;
+    color: var(--clr-dark);
+    padding: 0.6rem 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+  }
+  .activity-details-box textarea:focus {
+    border-color: var(--clr-info);
+    box-shadow: 0 0 0 2px var(--clr-info);
+  }
+  @media (max-width: 600px) {
+    .activity-checkbox-grid {
+      grid-template-columns: 1fr;
+      gap: 0.5rem 0;
+    }
+    .activity-checkbox-item label {
+      font-size: 0.99rem;
+    }
+  }
+
   /* --- Modern Experience Card & Activity Details Styling --- */
   .repeatable-group {
     display: flex;
@@ -904,42 +989,34 @@ function startForm(formDataRaw) {
             card.appendChild(lbl);
             // Special handling for activities checkbox group
             if (f.type === 'checkbox' && Array.isArray(f.options)) {
-              // Store checked activities in exp._activities = {activity: details}
               if (!exp._activities) exp._activities = {};
-              if (!exp._activityOptions) exp._activityOptions = [...f.options]; // per-experience options
-              const groupDiv = document.createElement('div');
-              groupDiv.className = 'form-radio-group';
+              if (!exp._activityOptions) exp._activityOptions = [...f.options];
+              // --- Improved grid layout for checkboxes ---
+              const grid = document.createElement('div');
+              grid.className = 'activity-checkbox-grid';
               exp._activityOptions.forEach(opt => {
+                const item = document.createElement('div');
+                item.className = 'activity-checkbox-item' + (exp._activities[opt] !== undefined ? ' active' : '');
+                // Checkbox
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.name = f.name + '_' + idx;
                 cb.value = opt;
                 cb.id = f.name + '_' + idx + '_' + opt;
                 cb.checked = exp._activities[opt] !== undefined;
+                // Label
                 const cbLabel = document.createElement('label');
                 cbLabel.htmlFor = cb.id;
                 cbLabel.innerText = opt;
-                groupDiv.appendChild(cb);
-                groupDiv.appendChild(cbLabel);
-                // Activity details section
+                // Details box
                 const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'activity-details-box';
                 detailsDiv.style.display = cb.checked ? 'block' : 'none';
-                detailsDiv.style.margin = '0.5rem 0 0.7rem 1.2rem';
-                detailsDiv.style.padding = '0.7rem 0.7rem 0.7rem 0.7rem';
-                detailsDiv.style.background = '#f7f8fa';
-                detailsDiv.style.borderRadius = '10px';
-                detailsDiv.style.boxShadow = '0 1px 4px rgba(122,92,255,0.06)';
                 const detailsLabel = document.createElement('label');
                 detailsLabel.innerText = opt + ' details';
-                detailsLabel.style.fontWeight = '500';
-                detailsLabel.style.color = 'var(--clr-info)';
-                detailsLabel.style.fontSize = '0.98rem';
-                detailsLabel.style.marginBottom = '0.2rem';
                 detailsLabel.htmlFor = f.name + '_' + idx + '_' + opt + '_details';
                 const detailsInput = document.createElement('textarea');
                 detailsInput.placeholder = 'Enter details for ' + opt;
-                detailsInput.style.width = '100%';
-                detailsInput.style.minHeight = '60px';
                 detailsInput.id = f.name + '_' + idx + '_' + opt + '_details';
                 detailsInput.value = exp._activities[opt] || '';
                 detailsInput.oninput = e => {
@@ -947,16 +1024,22 @@ function startForm(formDataRaw) {
                 };
                 detailsDiv.appendChild(detailsLabel);
                 detailsDiv.appendChild(detailsInput);
-                groupDiv.appendChild(detailsDiv);
+                // Checkbox change handler
                 cb.onchange = () => {
                   if (cb.checked) {
                     detailsDiv.style.display = 'block';
                     exp._activities[opt] = detailsInput.value;
+                    item.classList.add('active');
                   } else {
                     detailsDiv.style.display = 'none';
                     delete exp._activities[opt];
+                    item.classList.remove('active');
                   }
                 };
+                item.appendChild(cb);
+                item.appendChild(cbLabel);
+                item.appendChild(detailsDiv);
+                grid.appendChild(item);
               });
               // --- Add custom activity input/button per experience ---
               const customWrap = document.createElement('div');
@@ -981,6 +1064,9 @@ function startForm(formDataRaw) {
               };
               customWrap.appendChild(customInput);
               customWrap.appendChild(addCustomBtn);
+              // Wrap grid and custom input
+              const groupDiv = document.createElement('div');
+              groupDiv.appendChild(grid);
               groupDiv.appendChild(customWrap);
               card.appendChild(groupDiv);
               return;
