@@ -1937,6 +1937,75 @@ function startForm(formDataRaw) {
               card.appendChild(groupDiv);
               return;
             }
+            // --- Card-based selector for select/card_select fields ---
+            if ((f.type === 'select' || f.type === 'card_select') && Array.isArray(f.options)) {
+              const cardWrap = document.createElement('div');
+              cardWrap.className = 'option-card-grid';
+              let selected = exp[f.name] || null;
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = f.name;
+              input.id = f.name + '_' + idx;
+              input.value = selected || '';
+              input.required = !!f.required;
+              const accentPalette = [
+                '#7a5cff', '#3ddcff', '#ffb347', '#ff5c93', '#00c48c', '#ff7eb3', '#ffd36e', '#6a93ff', '#ffb86e', '#ff6e6e', '#00b894', '#fd79a8', '#a29bfe', '#fab1a0', '#e17055', '#00b8d4'
+              ];
+              f.options.forEach((opt, i) => {
+                let value = typeof opt === 'object' && opt.value ? opt.value : opt;
+                let title = typeof opt === 'object' && opt.title ? opt.title : String(opt);
+                let desc = typeof opt === 'object' && opt.description ? opt.description : '';
+                let icon = typeof opt === 'object' && opt.icon ? opt.icon : '';
+                let accent = accentPalette[i % accentPalette.length];
+                const card = document.createElement('div');
+                card.className = 'option-card' + (selected === value ? ' selected' : '');
+                card.tabIndex = 0;
+                card.style.setProperty('--option-accent', accent);
+                card.innerHTML =
+                  `<div class='option-accent'></div>` +
+                  (icon ? `<span class='option-icon'>${icon}</span>` : '') +
+                  `<span class='option-title'>${title}</span>` +
+                  (desc ? `<span class='option-desc'>${desc}</span>` : '');
+                card.onclick = () => {
+                  selected = value;
+                  Array.from(cardWrap.children).forEach(c => c.classList.remove('selected'));
+                  card.classList.add('selected');
+                  input.value = value;
+                  exp[f.name] = value;
+                };
+                card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { card.onclick(); } };
+                cardWrap.appendChild(card);
+              });
+              card.appendChild(cardWrap);
+              card.appendChild(input);
+              return;
+            }
+            // --- Render 'choice' as a normal select dropdown ---
+            if (f.type === 'choice' && Array.isArray(f.options)) {
+              const select = document.createElement('select');
+              select.name = f.name;
+              select.id = f.name + '_' + idx;
+              select.required = !!f.required;
+              const placeholderOption = document.createElement('option');
+              placeholderOption.value = '';
+              placeholderOption.disabled = true;
+              placeholderOption.selected = !exp[f.name];
+              placeholderOption.hidden = true;
+              placeholderOption.textContent = 'Select...';
+              select.appendChild(placeholderOption);
+              f.options.forEach(opt => {
+                let value = typeof opt === 'object' && opt.value ? opt.value : opt;
+                let title = typeof opt === 'object' && opt.title ? opt.title : String(opt);
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = title;
+                if (exp[f.name] && exp[f.name] == value) option.selected = true;
+                select.appendChild(option);
+              });
+              select.onchange = e => { exp[f.name] = select.value; };
+              card.appendChild(select);
+              return;
+            }
             // ...existing code for other field types...
             let inp;
             if (f.type === 'textarea') {
@@ -2094,17 +2163,16 @@ function startForm(formDataRaw) {
 
       // --- Card-based selector for select fields and similar ---
       if ((field.type === "select" || field.type === "card_select") && Array.isArray(field.options)) {
+        // ...existing card selector code...
         const cardWrap = document.createElement("div");
         cardWrap.className = "option-card-grid";
         let selected = prevStepData[field.name] || null;
-        // Hidden input to store value for form submission
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = field.name;
         input.id = field.name;
         input.value = selected || '';
         input.required = !!field.required;
-        // Accent color palette for variety
         const accentPalette = [
           '#7a5cff', '#3ddcff', '#ffb347', '#ff5c93', '#00c48c', '#ff7eb3', '#ffd36e', '#6a93ff', '#ffb86e', '#ff6e6e', '#00b894', '#fd79a8', '#a29bfe', '#fab1a0', '#e17055', '#00b8d4'
         ];
@@ -2134,7 +2202,6 @@ function startForm(formDataRaw) {
         });
         fieldWrap.appendChild(cardWrap);
         fieldWrap.appendChild(input);
-        // If required, ensure at least one is selected
         form.addEventListener('submit', function(e) {
           if (input.required && !input.value) {
             e.preventDefault();
@@ -2143,6 +2210,33 @@ function startForm(formDataRaw) {
             setTimeout(()=>{cardWrap.style.boxShadow='';},1200);
           }
         });
+        form.appendChild(fieldWrap);
+        return;
+      }
+
+      // --- Render 'choice' as a normal select dropdown ---
+      if (field.type === "choice" && Array.isArray(field.options)) {
+        const select = document.createElement('select');
+        select.name = field.name;
+        select.id = field.name;
+        select.required = !!field.required;
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.disabled = true;
+        placeholderOption.selected = !prevStepData[field.name];
+        placeholderOption.hidden = true;
+        placeholderOption.textContent = 'Select...';
+        select.appendChild(placeholderOption);
+        field.options.forEach(opt => {
+          let value = typeof opt === 'object' && opt.value ? opt.value : opt;
+          let title = typeof opt === 'object' && opt.title ? opt.title : String(opt);
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = title;
+          if (prevStepData[field.name] && prevStepData[field.name] == value) option.selected = true;
+          select.appendChild(option);
+        });
+        fieldWrap.appendChild(select);
         form.appendChild(fieldWrap);
         return;
       }
