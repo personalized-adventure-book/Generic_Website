@@ -1596,8 +1596,9 @@ function startForm(formDataRaw) {
     let dynamicCheckboxes = [];
 
     form.onsubmit = e => {
-      // --- Validate required card selectors ---
+      // --- Validate required card selectors (main fields and repeatable groups) ---
       let valid = true;
+      // Main fields
       (step.fields || []).forEach(field => {
         if ((field.type === 'select' || field.type === 'card_select') && field.required) {
           const input = form.querySelector(`input[name='${field.name}']`);
@@ -1612,6 +1613,28 @@ function startForm(formDataRaw) {
           }
         }
       });
+      // Repeatable group fields
+      if (step.repeatable_group && Array.isArray(step.repeatable_group.fields)) {
+        const group = step.repeatable_group;
+        // For each experience card
+        const expCards = form.querySelectorAll('.experience-card');
+        expCards.forEach((card, idx) => {
+          group.fields.forEach(f => {
+            if ((f.type === 'select' || f.type === 'card_select') && f.required) {
+              const input = card.querySelector(`input[name='${f.name}']`);
+              const cardWrap = input ? input.previousElementSibling : null;
+              if (input && input.value === '') {
+                valid = false;
+                if (cardWrap && cardWrap.classList.contains('option-card-grid')) {
+                  cardWrap.scrollIntoView({behavior:'smooth',block:'center'});
+                  cardWrap.style.boxShadow = '0 0 0 3px var(--clr-danger)';
+                  setTimeout(()=>{cardWrap.style.boxShadow='';},1200);
+                }
+              }
+            }
+          });
+        });
+      }
       if (!valid) {
         e.preventDefault();
         return;
