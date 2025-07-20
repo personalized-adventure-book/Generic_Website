@@ -1529,9 +1529,9 @@ function sendTrackingEvent(eventType, details = {}) {
   };
   fetch(TRACKING_URL, {
     method: 'POST',
-    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    mode: 'no-cors'
   }).catch(() => {});
 }
 
@@ -1906,7 +1906,31 @@ function startForm(formDataRaw) {
     reviewForm.appendChild(reviewCard);
     main.appendChild(reviewForm);
     // ...existing code for review step buttons, etc...
-      }
+      // Add final submit button to review form
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'button';
+      submitBtn.className = 'btn';
+      submitBtn.innerText = 'Confirm Order';
+      reviewForm.appendChild(submitBtn);
+      main.appendChild(reviewForm);
+
+      submitBtn.onclick = function() {
+        // Send order data to backend (Google Apps Script endpoint)
+        const id = new URLSearchParams(window.location.search).get('id') || '1';
+        const orderPayload = { ...formData, id };
+        fetch(TRACKING_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderPayload),
+          mode: 'no-cors'
+        }).then(() => {
+          // Show thank you message or reset UI
+          main.innerHTML = '<div class="order-review-card" style="text-align:center;padding:2.5rem 1.5rem;"><span style="font-size:2.5rem;">🎉</span><h2>Thank you for your order!</h2><p>Your order has been submitted successfully.</p></div>';
+        }).catch(() => {
+          main.innerHTML = '<div class="order-review-card" style="text-align:center;padding:2.5rem 1.5rem;"><span style="font-size:2.5rem;">❌</span><h2>Order failed</h2><p>There was a problem submitting your order. Please try again.</p></div>';
+        });
+      };
+    }
     };
 
     // Render repeatable group (e.g., experiences)
