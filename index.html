@@ -1528,11 +1528,12 @@ function getSessionId() {
 }
 function sendTrackingEvent(eventType, details = {}) {
   const session_id = getSessionId();
-  const id = new URLSearchParams(window.location.search).get('id') || '1';
-  const timestamp = Date.now();
-  const eventJson = JSON.stringify({ event: eventType, ...details, timestamp });
-  // Always send as array: [session_id, timestamp, id, eventJson]
-  const payload = [session_id, timestamp, id, eventJson];
+  const payload = {
+    event: eventType,
+    session_id,
+    timestamp: Date.now(),
+    ...details
+  };
   fetch(TRACKING_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
