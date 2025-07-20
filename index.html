@@ -1528,12 +1528,11 @@ function getSessionId() {
 }
 function sendTrackingEvent(eventType, details = {}) {
   const session_id = getSessionId();
-  const payload = {
-    event: eventType,
-    session_id,
-    timestamp: Date.now(),
-    ...details
-  };
+  const id = new URLSearchParams(window.location.search).get('id') || '1';
+  const timestamp = Date.now();
+  const eventJson = JSON.stringify({ event: eventType, ...details, timestamp });
+  // Always send as array: [session_id, timestamp, id, eventJson]
+  const payload = [session_id, timestamp, id, eventJson];
   fetch(TRACKING_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1542,15 +1541,14 @@ function sendTrackingEvent(eventType, details = {}) {
   }).catch(() => {});
 }
 
-// Track session id, timing, and id on page load as the first event
+// Track session id on page load
 document.addEventListener('DOMContentLoaded', function() {
   const session_id = getSessionId();
   const id = new URLSearchParams(window.location.search).get('id') || '1';
-  sendTrackingEvent('session_start', {
-    session_id,
-    timestamp: Date.now(),
-    id
-  });
+  const timestamp = Date.now();
+  sendTrackingEvent('session_id', { session_id });
+  sendTrackingEvent('timestamp', { timestamp });
+  sendTrackingEvent('id', { id });
 });
 
 // Track focus events
