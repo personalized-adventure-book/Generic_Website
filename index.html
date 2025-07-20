@@ -1450,6 +1450,7 @@
   </footer>
 <script>
 // Cache homepage data for instant reload
+let homepageRowCache = null;
 const HEADER_HEIGHT = 90; // px, adjust if your sticky header is taller/shorter
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId);
@@ -2201,26 +2202,14 @@ function startForm(formDataRaw) {
         });
         fieldWrap.appendChild(cardWrap);
         fieldWrap.appendChild(input);
-        // Required validation for card selectors (enforced on submit)
-        if (!form._cardRequiredPatched) {
-          form._cardRequiredPatched = true;
-          form.addEventListener('submit', function(e) {
-            let firstInvalid = null;
-            form.querySelectorAll('.option-card-grid + input[type="hidden"][required]').forEach(function(hiddenInput) {
-              if (!hiddenInput.value) {
-                e.preventDefault();
-                const grid = hiddenInput.previousElementSibling;
-                if (grid && grid.classList.contains('option-card-grid')) {
-                  grid.scrollIntoView({behavior:'smooth',block:'center'});
-                  grid.style.boxShadow = '0 0 0 3px var(--clr-danger)';
-                  setTimeout(()=>{grid.style.boxShadow='';},1200);
-                  if (!firstInvalid) firstInvalid = grid;
-                }
-              }
-            });
-            if (firstInvalid) firstInvalid.focus && firstInvalid.focus();
-          });
-        }
+        form.addEventListener('submit', function(e) {
+          if (input.required && !input.value) {
+            e.preventDefault();
+            cardWrap.scrollIntoView({behavior:'smooth',block:'center'});
+            cardWrap.style.boxShadow = '0 0 0 3px var(--clr-danger)';
+            setTimeout(()=>{cardWrap.style.boxShadow='';},1200);
+          }
+        });
         form.appendChild(fieldWrap);
         return;
       }
@@ -2436,8 +2425,6 @@ function startForm(formDataRaw) {
 
   renderStep(currentStep);
 }
-let homepageRowCache = null;
-let homepageFormData = null;
 function init(row) {
   // Cache homepage data for instant reload
   homepageRowCache = row;
@@ -2453,9 +2440,6 @@ function init(row) {
     console.error("Invalid JSON format:", e, row[0]);
     return;
   }
-
-  // Store form data globally for Start button
-  homepageFormData = row[1];
 
   // --- Hero ---
   const hero = data.hero || {};
@@ -2577,8 +2561,8 @@ function init(row) {
   const startButton = document.querySelector(".btn");
   if (startButton) {
     startButton.onclick = () => {
-      if (typeof homepageFormData === "string") {
-        startForm(homepageFormData);
+      if (typeof row[1] === "string") {
+        startForm(row[1]);
       } else {
         alert("Form data is not available.");
       }
