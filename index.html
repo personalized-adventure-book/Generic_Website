@@ -1543,8 +1543,8 @@ function sendTrackingEvent(eventType, details = {}) {
   fetch(TRACKING_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-    // mode: 'no-cors' // Remove for debugging; add back in production if needed
+    body: JSON.stringify(payload),
+    mode: 'no-cors' // Remove for debugging; add back in production if needed
   })
     .then(response => {
       if (!response.ok) {
