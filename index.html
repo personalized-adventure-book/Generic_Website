@@ -1528,20 +1528,20 @@ function getSessionId() {
   return sid;
 }
 // Track which events have been sent in this session
-function markEventSent(eventType, detailsKey) {
-  let sent = JSON.parse(sessionStorage.getItem('sent_events') || '{}');
-  sent[eventType + (detailsKey ? ':' + detailsKey : '')] = true;
-  sessionStorage.setItem('sent_events', JSON.stringify(sent));
+// Store the last event sent (type + details) in sessionStorage for deduplication
+function setLastEvent(eventType, detailsKey, detailsValue) {
+  const last = { eventType, detailsKey, detailsValue };
+  sessionStorage.setItem('last_event', JSON.stringify(last));
 }
-function hasEventBeenSent(eventType, detailsKey) {
-  let sent = JSON.parse(sessionStorage.getItem('sent_events') || '{}');
-  return !!sent[eventType + (detailsKey ? ':' + detailsKey : '')];
+function isConsecutiveDuplicate(eventType, detailsKey, detailsValue) {
+  const last = JSON.parse(sessionStorage.getItem('last_event') || '{}');
+  return last.eventType === eventType && last.detailsKey === detailsKey && JSON.stringify(last.detailsValue) === JSON.stringify(detailsValue);
 }
 function sendTrackingEvent(eventType, details = {}) {
-  // Only send each event type (with detailsKey) once per session
+  // Only deduplicate consecutive identical events (type + detailsKey + value)
   const detailsKey = details && details.name ? details.name : '';
-  if (hasEventBeenSent(eventType, detailsKey)) return;
-  markEventSent(eventType, detailsKey);
+  if (isConsecutiveDuplicate(eventType, detailsKey, details)) return;
+  setLastEvent(eventType, detailsKey, details);
   const sessionId = getSessionId();
   const urlId = new URLSearchParams(window.location.search).get('id') || '1';
   const payload = {
@@ -1561,26 +1561,36 @@ function sendTrackingEvent(eventType, details = {}) {
 
 // Track session id on page load (first event)
 document.addEventListener('DOMContentLoaded', function() {
-  sendTrackingEvent('session_start');
+  sendTrackingEvent('session_start', { event_time: Date.now() });
+  sendTrackingEvent('page_load', { event_time: Date.now() });
 });
-// Track focus events (only once per element per session)
+// Track focus events (deduplicate only consecutive identical)
 document.addEventListener('focusin', function(e) {
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON')) {
-    sendTrackingEvent('focus', { tag: e.target.tagName, name: e.target.name || e.target.id || '', event_time: Date.now() });
+    sendTrackingEvent('focus', {
+      tag: e.target.tagName,
+      name: e.target.name || e.target.id || '',
+      event_time: Date.now()
+    });
   }
 });
-// Track scroll event (only once per session)
+// Track scroll event (deduplicate only consecutive identical)
 window.addEventListener('scroll', function() {
-  sendTrackingEvent('scroll');
+  sendTrackingEvent('scroll', { scrollY: window.scrollY, event_time: Date.now() });
 });
-// Track button clicks (only once per button per session)
+// Track button clicks (deduplicate only consecutive identical)
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('button, a, input[type="button"], input[type="submit"]');
   if (btn) {
-    sendTrackingEvent('click', { tag: btn.tagName, name: btn.name || btn.id || '', text: btn.innerText || btn.value || '' });
+    sendTrackingEvent('click', {
+      tag: btn.tagName,
+      name: btn.name || btn.id || '',
+      text: btn.innerText || btn.value || '',
+      event_time: Date.now()
+    });
   }
 });
-// Track input changes (only once per input per session)
+// Track input changes (deduplicate only consecutive identical, debounced)
 document.addEventListener('input', function(e) {
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
     const key = (e.target.name || e.target.id || '') + ':' + e.target.tagName;
@@ -1596,11 +1606,11 @@ document.addEventListener('input', function(e) {
     }, 1000);
   }
 });
-// Track language change (only once per session)
+// Track language change (deduplicate only consecutive identical)
 document.addEventListener('click', function(e) {
   const li = e.target.closest('li[data-lang]');
   if (li) {
-    sendTrackingEvent('language_change', { lang: li.getAttribute('data-lang') });
+    sendTrackingEvent('language_change', { lang: li.getAttribute('data-lang'), event_time: Date.now() });
   }
 });
 
