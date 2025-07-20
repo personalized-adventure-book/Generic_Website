@@ -1630,100 +1630,183 @@ function startForm(formDataRaw) {
         currentStep++;
         renderStep(currentStep);
       } else {
-        formData.id = id;
-        main.innerHTML = `
-        <section class="order-review-card">
-          <div class="order-review-header">
-            <span class="order-review-icon">🎉</span>
-            <h2>Thank you for your order!</h2>
-          </div>
-          <div class="order-review-details">
-            <h3>Order Details</h3>
-            <ul class="order-review-list" style="max-width: 100%;">
-              ${Object.entries(formData).filter(([k]) => k !== 'experiences').map(([k,v]) =>
-                `<li class="order-review-item" style="background:none;box-shadow:none;padding-left:0;">
-                  <span class="order-review-label" style="min-width:90px;text-align:left;">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span>
-                  <span class="order-review-value">${Array.isArray(v) ? v.join(", ") : v}</span>
-                </li>`
-              ).join('')}
-            </ul>
-            ${Array.isArray(formData.experiences) && formData.experiences.length ? `
-              <div class="order-experiences-list">
-                <h3 style="color:var(--clr-primary);margin:2.2em 0 1.1em 0;font-size:1.18em;font-weight:800;">Experiences</h3>
-                ${formData.experiences.map((exp, i) => {
-                  // Separate main fields and activities
-                  const mainFields = Object.entries(exp).filter(([ek]) => !ek.endsWith('_details'));
-                  const activityDetails = Object.entries(exp).filter(([ek]) => ek.endsWith('_details'));
-                  return `
-                  <div class="order-experience-card" style="margin-bottom:1.5em;">
-                    <div class="order-experience-title" style="font-size:1.15em;margin-bottom:1em;display:flex;align-items:center;gap:0.7em;">
-                      <span style="background:linear-gradient(90deg,var(--clr-primary),var(--clr-accent));color:#fff;border-radius:8px;padding:0.18em 0.7em;font-size:1.1em;">${i+1}</span>
-                      <span>Experience ${i+1}</span>
-                    </div>
-                    <div style="display:grid;grid-template-columns:140px 1fr;gap:0.4em 1.2em;margin-bottom:1.1em;">
-                      ${mainFields.map(([ek,ev]) =>
-                        `<div class="order-review-label" style="text-align:left;min-width:90px;font-weight:700;">${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</div>
-                         <div class="order-review-value">${Array.isArray(ev) ? ev.join(", ") : ev}</div>`
-                      ).join('')}
-                    </div>
-                    ${activityDetails.length ? `
-                      <div style="margin-top:0.7em;">
-                        <div style="font-weight:700;color:var(--clr-info);margin-bottom:0.4em;">Activities</div>
-                        <ul class="order-activity-details" style="margin-left:0;">
-                          ${activityDetails.map(([ek,ev]) =>
-                            Object.entries(ev).map(([act,det]) =>
-                              `<li style="margin-bottom:0.3em;"><span class="order-activity-name" style="color:var(--clr-primary);font-weight:700;">${act}:</span> <span class="order-activity-detail">${det}</span></li>`
-                            ).join('')
-                          ).join('')}
-                        </ul>
-                      </div>
-                    ` : ''}
-                  </div>
-                  `;
-                }).join('')}
-              </div>
-            ` : ''}
-            <div style="display:flex;gap:1.2rem;justify-content:center;margin-top:2.5rem;">
-              <button class="btn" id="review-home-btn" style="background:linear-gradient(90deg,var(--clr-primary),var(--clr-accent));font-size:1.08rem;">Go to Home</button>
-              <button class="btn info" id="review-neworder-btn" style="font-size:1.08rem;">Start Another Order</button>
-            </div>
-          </div>
-        </section>
-        `;
-        fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec`, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {"Content-Type": "text/plain;charset=utf-8"},
-          body: JSON.stringify(formData)
-        }).catch(err => {
-          alert("Submission failed.");
-          console.error(err);
-        });
-        // Add event listeners for review page buttons
-        setTimeout(() => {
-          const homeBtn = document.getElementById('review-home-btn');
-          if (homeBtn) homeBtn.onclick = e => {
-            e.preventDefault();
-            const logo = document.getElementById('site-logo');
-            if (logo) logo.click();
-          };
-          const newOrderBtn = document.getElementById('review-neworder-btn');
-          if (newOrderBtn) newOrderBtn.onclick = e => {
-            e.preventDefault();
-            // Simulate clicking the start button on the homepage
-            const main = document.getElementById('main-content');
-            const nav = document.getElementById('nav-links');
-            if (homepageRowCache && typeof startForm === 'function' && homepageRowCache[1]) {
-              if (main) main.innerHTML = '';
-              if (nav) nav.innerHTML = '';
-              startForm(homepageRowCache[1]);
-            } else {
-              // fallback: reload homepage
+        // Review step: show a summary form for review before submit
+        main.innerHTML = '';
+        const reviewForm = document.createElement('form');
+        // Header
+        const formHeader = document.createElement('div');
+        formHeader.style.display = 'flex';
+        formHeader.style.alignItems = 'center';
+        formHeader.style.justifyContent = 'space-between';
+        formHeader.style.marginBottom = '1.1rem';
+        const stepTitle = document.createElement('h2');
+        stepTitle.innerText = 'Review';
+        stepTitle.style.margin = '0 auto 0 0';
+        stepTitle.style.fontSize = '1.45rem';
+        stepTitle.style.fontWeight = '800';
+        stepTitle.style.color = 'var(--clr-primary)';
+        stepTitle.style.letterSpacing = '-1px';
+        formHeader.appendChild(stepTitle);
+        // X (close) button
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.title = 'Cancel order';
+        closeBtn.className = 'btn danger';
+        closeBtn.style.fontSize = '1.3rem';
+        closeBtn.style.fontWeight = '700';
+        closeBtn.style.width = '38px';
+        closeBtn.style.height = '38px';
+        closeBtn.style.borderRadius = '50%';
+        closeBtn.style.padding = '0';
+        closeBtn.style.display = 'flex';
+        closeBtn.style.alignItems = 'center';
+        closeBtn.style.justifyContent = 'center';
+        closeBtn.style.marginLeft = '1.1rem';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = () => {
+          // Show custom modal
+          const modal = document.getElementById('cancel-modal');
+          if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => { document.getElementById('modal-cancel-btn').focus(); }, 100);
+            document.getElementById('modal-cancel-btn').onclick = () => {
+              modal.style.display = 'none';
+            };
+            document.getElementById('modal-confirm-btn').onclick = () => {
+              modal.style.display = 'none';
               const logo = document.getElementById('site-logo');
               if (logo) logo.click();
+              else if (homepageRowCache && typeof init === 'function') {
+                init(homepageRowCache);
+              } else {
+                main.innerHTML = '<div class="section-divider"></div>';
+              }
+            };
+          }
+        };
+        formHeader.appendChild(closeBtn);
+        reviewForm.appendChild(formHeader);
+        // Order info summary (all fields except experiences)
+        const infoList = document.createElement('ul');
+        infoList.style.listStyle = 'none';
+        infoList.style.padding = '0';
+        infoList.style.margin = '0 0 1.5rem 0';
+        Object.entries(formData).filter(([k]) => k !== 'experiences').forEach(([k, v]) => {
+          const li = document.createElement('li');
+          li.style.display = 'flex';
+          li.style.alignItems = 'flex-start';
+          li.style.gap = '1.2em';
+          li.style.marginBottom = '1.1em';
+          li.innerHTML = `<span style="color:var(--clr-primary);font-weight:700;min-width:140px;display:inline-block;font-size:1.04em;">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span><span style="color:#333;font-weight:600;font-size:1.04em;">${Array.isArray(v) ? v.join(", ") : v}</span>`;
+          infoList.appendChild(li);
+        });
+        reviewForm.appendChild(infoList);
+        // Experiences summary (if any)
+        if (Array.isArray(formData.experiences) && formData.experiences.length) {
+          const expWrap = document.createElement('div');
+          expWrap.style.margin = '2.2em 0 1.1em 0';
+          expWrap.innerHTML = `<h3 style="color:var(--clr-primary);font-size:1.18em;font-weight:800;margin-bottom:1.1em;">Experiences</h3>`;
+          formData.experiences.forEach((exp, i) => {
+            const card = document.createElement('div');
+            card.className = 'order-experience-card';
+            card.style.marginBottom = '1.5em';
+            card.innerHTML = `<div class="order-experience-title" style="font-size:1.15em;margin-bottom:1em;display:flex;align-items:center;gap:0.7em;"><span style="background:linear-gradient(90deg,var(--clr-primary),var(--clr-accent));color:#fff;border-radius:8px;padding:0.18em 0.7em;font-size:1.1em;">${i+1}</span><span>Experience ${i+1}</span></div>`;
+            // Main fields
+            const mainFields = Object.entries(exp).filter(([ek]) => !ek.endsWith('_details'));
+            const mainGrid = document.createElement('div');
+            mainGrid.style.display = 'grid';
+            mainGrid.style.gridTemplateColumns = '140px 1fr';
+            mainGrid.style.gap = '0.4em 1.2em';
+            mainGrid.style.marginBottom = '1.1em';
+            mainFields.forEach(([ek, ev]) => {
+              const label = document.createElement('div');
+              label.className = 'order-review-label';
+              label.style.textAlign = 'left';
+              label.style.minWidth = '90px';
+              label.style.fontWeight = '700';
+              label.innerText = ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) + ':';
+              const value = document.createElement('div');
+              value.className = 'order-review-value';
+              value.innerText = Array.isArray(ev) ? ev.join(', ') : ev;
+              mainGrid.appendChild(label);
+              mainGrid.appendChild(value);
+            });
+            card.appendChild(mainGrid);
+            // Activities
+            const activityDetails = Object.entries(exp).filter(([ek]) => ek.endsWith('_details'));
+            if (activityDetails.length) {
+              const actWrap = document.createElement('div');
+              actWrap.style.marginTop = '0.7em';
+              actWrap.innerHTML = `<div style="font-weight:700;color:var(--clr-info);margin-bottom:0.4em;">Activities</div>`;
+              const ul = document.createElement('ul');
+              ul.className = 'order-activity-details';
+              ul.style.marginLeft = '0';
+              activityDetails.forEach(([ek, ev]) => {
+                Object.entries(ev).forEach(([act, det]) => {
+                  const li = document.createElement('li');
+                  li.style.marginBottom = '0.3em';
+                  li.innerHTML = `<span class="order-activity-name" style="color:var(--clr-primary);font-weight:700;">${act}:</span> <span class="order-activity-detail">${det}</span>`;
+                  ul.appendChild(li);
+                });
+              });
+              actWrap.appendChild(ul);
+              card.appendChild(actWrap);
             }
+            expWrap.appendChild(card);
+          });
+          reviewForm.appendChild(expWrap);
+        }
+        // Footer with back/submit
+        const formFooter = document.createElement('div');
+        formFooter.style.display = 'flex';
+        formFooter.style.justifyContent = 'flex-end';
+        formFooter.style.alignItems = 'center';
+        formFooter.style.gap = '0.7rem';
+        formFooter.style.marginTop = '1.2rem';
+        // Back button
+        if (stepIndex > 0) {
+          const backBtn = document.createElement('button');
+          backBtn.type = 'button';
+          backBtn.className = 'btn form-back-btn';
+          backBtn.style.background = '#e9e6ff';
+          backBtn.style.color = 'var(--clr-muted)';
+          backBtn.style.fontWeight = '600';
+          backBtn.style.border = '1.2px solid #ede7ff';
+          backBtn.style.boxShadow = 'none';
+          backBtn.style.fontSize = '1.01rem';
+          backBtn.style.padding = '0.5rem 1.2rem';
+          backBtn.innerHTML = '← Back';
+          backBtn.onmouseover = () => { backBtn.style.background = '#f3f0ff'; };
+          backBtn.onmouseout = () => { backBtn.style.background = '#e9e6ff'; };
+          backBtn.onclick = () => {
+            currentStep--;
+            renderStep(currentStep);
           };
-        }, 100);
+          formFooter.appendChild(backBtn);
+        }
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.className = 'btn';
+        submitBtn.innerText = 'Submit';
+        formFooter.appendChild(submitBtn);
+        reviewForm.appendChild(formFooter);
+        main.appendChild(reviewForm);
+        // On submit, send data and show thank you
+        reviewForm.onsubmit = function(e) {
+          e.preventDefault();
+          formData.id = id;
+          main.innerHTML = `<section class=\"order-review-card\"><div class=\"order-review-header\"><span class=\"order-review-icon\">🎉</span><h2>Thank you for your order!</h2></div></section>`;
+          fetch(`https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec`, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {"Content-Type": "text/plain;charset=utf-8"},
+            body: JSON.stringify(formData)
+          }).catch(err => {
+            alert("Submission failed.");
+            console.error(err);
+          });
+          // Optionally, add navigation buttons after thank you if needed
+        };
       }
     };
 
@@ -1755,8 +1838,8 @@ function startForm(formDataRaw) {
           card.innerHTML = `<div style='font-weight:700;color:var(--clr-primary);font-size:1.1rem;margin-bottom:0.2rem;'>${group.label} ${idx+1}</div>`;
           group.fields.forEach(f => {
             const lbl = document.createElement('label');
-            lbl.innerText = f.label;
             lbl.htmlFor = f.name + '_' + idx;
+            lbl.innerHTML = f.label + (f.required ? " <span class='required-asterisk' style='color:#ff5c5c;font-weight:900;font-size:1.1em;margin-left:0.2em;'>*</span>" : "");
             card.appendChild(lbl);
             // Special handling for activities checkbox group
             if (f.type === 'checkbox' && Array.isArray(f.options)) {
@@ -1996,7 +2079,7 @@ function startForm(formDataRaw) {
       fieldWrap.className = 'form-field';
       const label = document.createElement("label");
       label.htmlFor = field.name;
-      label.innerText = field.label;
+      label.innerHTML = field.label + (field.required ? " <span class='required-asterisk' style='color:#ff5c5c;font-weight:900;font-size:1.1em;margin-left:0.2em;'>*</span>" : "");
       fieldWrap.appendChild(label);
 
       // --- Card-based selector for select fields and similar ---
@@ -2029,8 +2112,7 @@ function startForm(formDataRaw) {
             `<div class='option-accent'></div>` +
             (icon ? `<span class='option-icon'>${icon}</span>` : '') +
             `<span class='option-title'>${title}</span>` +
-            (desc ? `<span class='option-desc'>${desc}</span>` : '') +
-            `<span class='option-badge'>Selected</span>`;
+            (desc ? `<span class='option-desc'>${desc}</span>` : '');
           card.onclick = () => {
             selected = value;
             Array.from(cardWrap.children).forEach(c => c.classList.remove('selected'));
