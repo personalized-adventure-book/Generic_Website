@@ -1532,40 +1532,18 @@ function sendTrackingEvent(eventType, details = {}) {
   const timestamp = Date.now();
   const eventJson = JSON.stringify({ event: eventType, ...details, timestamp });
   // Always send as array: [session_id, timestamp, id, eventJson]
-  const payload = {
-  session_id,
-  timestamp,
-  id,
-  event: eventType,
-  details
-};
-  console.log('[Tracking] Sending event:', payload);
+  const payload = [session_id, timestamp, id, eventJson];
   fetch(TRACKING_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    mode: 'no-cors' // KEEP no-cors: required for Google Apps Script endpoint
-  })
-    .then(response => {
-      if (!response.ok) {
-        console.error('[Tracking] Network response was not ok:', response.status, response.statusText);
-      } else {
-        response.text().then(txt => console.log('[Tracking] Response:', txt));
-      }
-    })
-    .catch(err => {
-      console.error('[Tracking] Fetch error:', err);
-    });
+    mode: 'no-cors'
+  }).catch(() => {});
 }
 
 // Track session id on page load
 document.addEventListener('DOMContentLoaded', function() {
-  const session_id = getSessionId();
-  const id = new URLSearchParams(window.location.search).get('id') || '1';
-  const timestamp = Date.now();
-  sendTrackingEvent('session_id', { session_id });
-  sendTrackingEvent('timestamp', { timestamp });
-  sendTrackingEvent('id', { id });
+  sendTrackingEvent('page_load');
 });
 
 // Track focus events
