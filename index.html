@@ -2202,14 +2202,26 @@ function startForm(formDataRaw) {
         });
         fieldWrap.appendChild(cardWrap);
         fieldWrap.appendChild(input);
-        form.addEventListener('submit', function(e) {
-          if (input.required && !input.value) {
-            e.preventDefault();
-            cardWrap.scrollIntoView({behavior:'smooth',block:'center'});
-            cardWrap.style.boxShadow = '0 0 0 3px var(--clr-danger)';
-            setTimeout(()=>{cardWrap.style.boxShadow='';},1200);
-          }
-        });
+        // Required validation for card selectors (enforced on submit)
+        if (!form._cardRequiredPatched) {
+          form._cardRequiredPatched = true;
+          form.addEventListener('submit', function(e) {
+            let firstInvalid = null;
+            form.querySelectorAll('.option-card-grid + input[type="hidden"][required]').forEach(function(hiddenInput) {
+              if (!hiddenInput.value) {
+                e.preventDefault();
+                const grid = hiddenInput.previousElementSibling;
+                if (grid && grid.classList.contains('option-card-grid')) {
+                  grid.scrollIntoView({behavior:'smooth',block:'center'});
+                  grid.style.boxShadow = '0 0 0 3px var(--clr-danger)';
+                  setTimeout(()=>{grid.style.boxShadow='';},1200);
+                  if (!firstInvalid) firstInvalid = grid;
+                }
+              }
+            });
+            if (firstInvalid) firstInvalid.focus && firstInvalid.focus();
+          });
+        }
         form.appendChild(fieldWrap);
         return;
       }
