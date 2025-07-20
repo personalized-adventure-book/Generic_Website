@@ -1148,7 +1148,7 @@
   </div>
 
     <header>
-        <a href="#" id="site-logo" style="text-decoration:none;"><h1 id="site-title">O</h1></a>
+        <a href="#" id="site-logo" style="text-decoration:none;"><h1 id="site-title">One Print Away!</h1></a>
         <nav id="nav-links" aria-label="Main Navigation"></nav>
     </header>
   <main id="main-content">
@@ -1362,29 +1362,37 @@ function startForm(formDataRaw) {
             ${Array.isArray(formData.experiences) && formData.experiences.length ? `
               <div class="order-experiences-list">
                 <h3 style="color:var(--clr-primary);margin:2.2em 0 1.1em 0;font-size:1.18em;font-weight:800;">Experiences</h3>
-                ${formData.experiences.map((exp, i) => `
-                  <div class="order-experience-card">
-                    <div class="order-experience-title"><span>Experience ${i+1}</span></div>
-                    <ul class="order-experience-details">
-                      ${Object.entries(exp).filter(([ek]) => !ek.endsWith('_details')).map(([ek,ev]) =>
-                        `<li style="margin-bottom:0.5em;display:flex;gap:0.7em;align-items:flex-start;">
-                          <span class="order-review-label" style="min-width:90px;text-align:left;">${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span>
-                          <span class="order-review-value">${Array.isArray(ev) ? ev.join(", ") : ev}</span>
-                        </li>`
+                ${formData.experiences.map((exp, i) => {
+                  // Separate main fields and activities
+                  const mainFields = Object.entries(exp).filter(([ek]) => !ek.endsWith('_details'));
+                  const activityDetails = Object.entries(exp).filter(([ek]) => ek.endsWith('_details'));
+                  return `
+                  <div class="order-experience-card" style="margin-bottom:1.5em;">
+                    <div class="order-experience-title" style="font-size:1.15em;margin-bottom:1em;display:flex;align-items:center;gap:0.7em;">
+                      <span style="background:linear-gradient(90deg,var(--clr-primary),var(--clr-accent));color:#fff;border-radius:8px;padding:0.18em 0.7em;font-size:1.1em;">${i+1}</span>
+                      <span>Experience ${i+1}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:140px 1fr;gap:0.4em 1.2em;margin-bottom:1.1em;">
+                      ${mainFields.map(([ek,ev]) =>
+                        `<div class="order-review-label" style="text-align:left;min-width:90px;font-weight:700;">${ek.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</div>
+                         <div class="order-review-value">${Array.isArray(ev) ? ev.join(", ") : ev}</div>`
                       ).join('')}
-                      ${Object.entries(exp).filter(([ek]) => ek.endsWith('_details')).map(([ek,ev]) =>
-                        `<li style="margin-bottom:0.5em;">
-                          <span class="order-review-label" style="font-size:1em;">${ek.replace(/_/g,' ').replace(' details','').replace(/\b\w/g,c=>c.toUpperCase())}:</span>
-                          <ul class="order-activity-details">
-                            ${Object.entries(ev).map(([act,det]) =>
-                              `<li><span class="order-activity-name">${act}:</span> <span class="order-activity-detail">${det}</span></li>`
-                            ).join('')}
-                          </ul>
-                        </li>`
-                      ).join('')}
-                    </ul>
+                    </div>
+                    ${activityDetails.length ? `
+                      <div style="margin-top:0.7em;">
+                        <div style="font-weight:700;color:var(--clr-info);margin-bottom:0.4em;">Activities</div>
+                        <ul class="order-activity-details" style="margin-left:0;">
+                          ${activityDetails.map(([ek,ev]) =>
+                            Object.entries(ev).map(([act,det]) =>
+                              `<li style="margin-bottom:0.3em;"><span class="order-activity-name" style="color:var(--clr-primary);font-weight:700;">${act}:</span> <span class="order-activity-detail">${det}</span></li>`
+                            ).join('')
+                          ).join('')}
+                        </ul>
+                      </div>
+                    ` : ''}
                   </div>
-                `).join('')}
+                  `;
+                }).join('')}
               </div>
             ` : ''}
             <div style="display:flex;gap:1.2rem;justify-content:center;margin-top:2.5rem;">
@@ -1699,6 +1707,73 @@ function startForm(formDataRaw) {
       label.htmlFor = field.name;
       label.innerText = field.label;
       form.appendChild(label);
+
+      // --- Card-based selector for select fields and similar ---
+      if ((field.type === "select" || field.type === "card_select") && Array.isArray(field.options)) {
+        const cardWrap = document.createElement("div");
+        cardWrap.className = "option-card-grid";
+        cardWrap.style.display = 'grid';
+        cardWrap.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
+        cardWrap.style.gap = '1.1rem 1.5rem';
+        cardWrap.style.margin = '0.7rem 0 1.2rem 0';
+        let selected = prevStepData[field.name] || null;
+        field.options.forEach(opt => {
+          let value = typeof opt === 'object' && opt.value ? opt.value : opt;
+          let title = typeof opt === 'object' && opt.title ? opt.title : String(opt);
+          let desc = typeof opt === 'object' && opt.description ? opt.description : '';
+          let icon = typeof opt === 'object' && opt.icon ? opt.icon : '';
+          const card = document.createElement("div");
+          card.className = "option-card" + (selected === value ? ' selected' : '');
+          card.tabIndex = 0;
+          card.style.cursor = "pointer";
+          card.style.background = '#fff';
+          card.style.border = '2px solid #ede7ff';
+          card.style.borderRadius = '12px';
+          card.style.boxShadow = '0 1px 6px rgba(122,92,255,0.07)';
+          card.style.padding = '1.1em 1em 1em 1em';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.alignItems = 'flex-start';
+          card.style.justifyContent = 'flex-start';
+          card.style.transition = 'box-shadow 0.18s, border 0.18s';
+          card.style.position = 'relative';
+          card.style.fontSize = '1.05em';
+          card.innerHTML =
+            (icon ? `<span style="font-size:1.5em;margin-bottom:0.3em;">${icon}</span>` : '') +
+            `<span style="font-weight:700;color:var(--clr-primary);margin-bottom:0.2em;">${title}</span>` +
+            (desc ? `<span style="color:#666;font-size:0.97em;margin-top:0.1em;">${desc}</span>` : '');
+          card.onclick = () => {
+            selected = value;
+            Array.from(cardWrap.children).forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            // Set hidden input value
+            input.value = value;
+          };
+          card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { card.onclick(); } };
+          cardWrap.appendChild(card);
+        });
+        // Hidden input to store value for form submission
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = field.name;
+        input.id = field.name;
+        input.value = selected || '';
+        input.required = !!field.required;
+        form.appendChild(cardWrap);
+        form.appendChild(input);
+        // If required, ensure at least one is selected
+        form.addEventListener('submit', function(e) {
+          if (input.required && !input.value) {
+            e.preventDefault();
+            cardWrap.scrollIntoView({behavior:'smooth',block:'center'});
+            cardWrap.style.boxShadow = '0 0 0 3px var(--clr-danger)';
+            setTimeout(()=>{cardWrap.style.boxShadow='';},1200);
+          }
+        });
+        return;
+      }
+
+      // ...existing code for radio, adventure_selector, checkbox, tags, textarea, range, text, etc...
       // Gender radio group
       if (field.type === "radio" && Array.isArray(field.options)) {
         const group = document.createElement("div");
@@ -1803,18 +1878,9 @@ function startForm(formDataRaw) {
         form.appendChild(wrap);
         return;
       }
-      // Default: select, textarea, range, text, etc.
+      // Default: textarea, range, text, etc.
       let input;
-      if (field.type === "select") {
-        input = document.createElement("select");
-        (field.options || []).forEach(opt => {
-          const option = document.createElement("option");
-          option.value = opt;
-          option.innerText = opt;
-          input.appendChild(option);
-        });
-        if (prevStepData[field.name]) input.value = prevStepData[field.name];
-      } else if (field.type === "textarea") {
+      if (field.type === "textarea") {
         input = document.createElement("textarea");
         if (prevStepData[field.name]) input.value = prevStepData[field.name];
       } else if (field.type === "range") {
