@@ -1534,6 +1534,9 @@
   function setLangBtnLabel(langNum) {
     langBtn.innerHTML = `🌐 ${langNames[langNum] || 'English'} ▼`;
   }
+  // Determine the id group (1-4 or 5-8) at page load
+  const initialId = parseInt(getCurrentId(), 10);
+  const idGroup = (initialId >= 5 && initialId <= 8) ? 5 : 1;
   langBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     const expanded = langBtn.getAttribute('aria-expanded') === 'true';
@@ -1546,13 +1549,8 @@
     if (li) {
       const chosen = parseInt(li.getAttribute('data-lang'), 10);
       setLangBtnLabel(chosen);
-      let id = parseInt(getCurrentId(), 10);
-      let newId = chosen;
-      if (id >= 1 && id <= 4) {
-        newId = chosen;
-      } else if (id >= 5 && id <= 8) {
-        newId = chosen + 4;
-      }
+      // Always use the original id group for switching
+      let newId = (idGroup === 5) ? (chosen + 4) : chosen;
       const url = new URL(window.location.href);
       url.searchParams.set('id', newId);
       window.location.href = url.toString();
@@ -1565,15 +1563,14 @@
     }
   });
   // Set initial label based on current id
-  const currentId = parseInt(getCurrentId(), 10);
   let langNum = 1;
-  if (currentId === 2) langNum = 2;
-  else if (currentId === 3) langNum = 3;
-  else if (currentId === 4) langNum = 4;
-  else if (currentId === 5) langNum = 1;
-  else if (currentId === 6) langNum = 2;
-  else if (currentId === 7) langNum = 3;
-  else if (currentId === 8) langNum = 4;
+  if (initialId === 2) langNum = 2;
+  else if (initialId === 3) langNum = 3;
+  else if (initialId === 4) langNum = 4;
+  else if (initialId === 5) langNum = 1;
+  else if (initialId === 6) langNum = 2;
+  else if (initialId === 7) langNum = 3;
+  else if (initialId === 8) langNum = 4;
   setLangBtnLabel(langNum);
 });
 // Cache homepage data for instant reload
