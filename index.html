@@ -1566,7 +1566,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Track focus events (only once per element per session)
 document.addEventListener('focusin', function(e) {
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON')) {
-    sendTrackingEvent('focus', { tag: e.target.tagName, name: e.target.name || e.target.id || '' });
+    sendTrackingEvent('focus', { tag: e.target.tagName, name: e.target.name || e.target.id || '', event_time: Date.now() });
   }
 });
 // Track scroll event (only once per session)
@@ -1583,7 +1583,17 @@ document.addEventListener('click', function(e) {
 // Track input changes (only once per input per session)
 document.addEventListener('input', function(e) {
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
-    sendTrackingEvent('input', { tag: e.target.tagName, name: e.target.name || e.target.id || '' });
+    const key = (e.target.name || e.target.id || '') + ':' + e.target.tagName;
+    if (!window.inputDebounceTimers) window.inputDebounceTimers = {};
+    if (window.inputDebounceTimers[key]) clearTimeout(window.inputDebounceTimers[key]);
+    window.inputDebounceTimers[key] = setTimeout(() => {
+      sendTrackingEvent('input', {
+        tag: e.target.tagName,
+        name: e.target.name || e.target.id || '',
+        value: e.target.value,
+        event_time: Date.now()
+      });
+    }, 1000);
   }
 });
 // Track language change (only once per session)
