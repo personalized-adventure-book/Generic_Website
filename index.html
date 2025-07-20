@@ -1957,24 +1957,24 @@ function startForm(formDataRaw) {
                 let desc = typeof opt === 'object' && opt.description ? opt.description : '';
                 let icon = typeof opt === 'object' && opt.icon ? opt.icon : '';
                 let accent = accentPalette[i % accentPalette.length];
-                const card = document.createElement('div');
-                card.className = 'option-card' + (selected === value ? ' selected' : '');
-                card.tabIndex = 0;
-                card.style.setProperty('--option-accent', accent);
-                card.innerHTML =
+                const cardOption = document.createElement('div');
+                cardOption.className = 'option-card' + (selected === value ? ' selected' : '');
+                cardOption.tabIndex = 0;
+                cardOption.style.setProperty('--option-accent', accent);
+                cardOption.innerHTML =
                   `<div class='option-accent'></div>` +
                   (icon ? `<span class='option-icon'>${icon}</span>` : '') +
                   `<span class='option-title'>${title}</span>` +
                   (desc ? `<span class='option-desc'>${desc}</span>` : '');
-                card.onclick = () => {
+                cardOption.onclick = () => {
                   selected = value;
                   Array.from(cardWrap.children).forEach(c => c.classList.remove('selected'));
-                  card.classList.add('selected');
+                  cardOption.classList.add('selected');
                   input.value = value;
                   exp[f.name] = value;
                 };
-                card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { card.onclick(); } };
-                cardWrap.appendChild(card);
+                cardOption.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { cardOption.onclick(); } };
+                cardWrap.appendChild(cardOption);
               });
               card.appendChild(cardWrap);
               card.appendChild(input);
