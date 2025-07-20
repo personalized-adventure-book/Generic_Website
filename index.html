@@ -1547,8 +1547,12 @@
       const chosen = parseInt(li.getAttribute('data-lang'), 10);
       setLangBtnLabel(chosen);
       let id = parseInt(getCurrentId(), 10);
-      let newId = chosen;
-      if (id === 2) newId = chosen + 4;
+      let newId = id;
+      if (id === 1 || isNaN(id)) {
+        newId = chosen;
+      } else if (id === 2) {
+        newId = chosen + 4;
+      }
       const url = new URL(window.location.href);
       url.searchParams.set('id', newId);
       window.location.href = url.toString();
