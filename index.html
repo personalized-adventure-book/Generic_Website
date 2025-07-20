@@ -1544,7 +1544,7 @@ function sendTrackingEvent(eventType, details = {}) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    mode: 'no-cors' // Remove for debugging; add back in production if needed
+    mode: 'no-cors' // KEEP no-cors: required for Google Apps Script endpoint
   })
     .then(response => {
       if (!response.ok) {
