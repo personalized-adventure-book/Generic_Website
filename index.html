@@ -1673,12 +1673,58 @@ function startForm(formDataRaw) {
         currentStep++;
         renderStep(currentStep);
       } else {
-        // ...existing code for review step...
-        main.innerHTML = '';
-        const reviewForm = document.createElement('form');
-        // ...existing code for review step...
-        // (no change to review step logic)
-        // ...existing code for review step...
+    // ...existing code for review step...
+    main.innerHTML = '';
+    const reviewForm = document.createElement('form');
+    // --- Review Step: Show all order info in a structured way ---
+    const reviewCard = document.createElement('div');
+    reviewCard.className = 'order-review-card';
+    // Header
+    const reviewHeader = document.createElement('div');
+    reviewHeader.className = 'order-review-header';
+    reviewHeader.innerHTML = `<span class="order-review-icon">🎉</span><h2>Order Review</h2>`;
+    reviewCard.appendChild(reviewHeader);
+    // Details
+    const details = document.createElement('div');
+    details.className = 'order-review-details';
+    details.innerHTML = '<h3>Order Information</h3>';
+    const list = document.createElement('ul');
+    list.className = 'order-review-list';
+    // Loop through all formData keys and show label/value
+    Object.keys(formData).forEach(key => {
+      let value = formData[key];
+      if (Array.isArray(value)) value = value.join(', ');
+      if (typeof value === 'object' && value !== null) value = JSON.stringify(value);
+      // Find the field label and id
+      let label = key;
+      let id = key;
+      for (const step of steps) {
+        const field = (step.fields||[]).find(f => f.name === key);
+        if (field) {
+          label = field.label || key;
+          id = field.name;
+          break;
+        }
+        if (step.repeatable_group && Array.isArray(step.repeatable_group.fields)) {
+          const groupField = step.repeatable_group.fields.find(f => f.name === key);
+          if (groupField) {
+            label = groupField.label || key;
+            id = groupField.name;
+            break;
+          }
+        }
+      }
+      const item = document.createElement('li');
+      item.className = 'order-review-item';
+      // Use label with for attribute matching id
+      item.innerHTML = `<label class="order-review-label" for="${id}">${label}</label><span class="order-review-value">${value}</span>`;
+      list.appendChild(item);
+    });
+    details.appendChild(list);
+    reviewCard.appendChild(details);
+    reviewForm.appendChild(reviewCard);
+    main.appendChild(reviewForm);
+    // ...existing code for review step buttons, etc...
       }
     };
 
