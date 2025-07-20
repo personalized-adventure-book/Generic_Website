@@ -1517,14 +1517,38 @@
   </footer>
 <script>
 // --- Tracking Setup ---
-const TRACKING_URL = 'https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec'; // TODO: Replace with your real endpoint
+const TRACKING_URL = 'https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec';
+// Generate or get session id for this session
+function getSessionId() {
+  let sid = sessionStorage.getItem('session_id');
+  if (!sid) {
+    sid = 'sess_' + Math.random().toString(36).substr(2, 10) + Date.now();
+    sessionStorage.setItem('session_id', sid);
+  }
+  return sid;
+}
+// Track which events have been sent in this session
+function markEventSent(eventType, detailsKey) {
+  let sent = JSON.parse(sessionStorage.getItem('sent_events') || '{}');
+  sent[eventType + (detailsKey ? ':' + detailsKey : '')] = true;
+  sessionStorage.setItem('sent_events', JSON.stringify(sent));
+}
+function hasEventBeenSent(eventType, detailsKey) {
+  let sent = JSON.parse(sessionStorage.getItem('sent_events') || '{}');
+  return !!sent[eventType + (detailsKey ? ':' + detailsKey : '')];
+}
 function sendTrackingEvent(eventType, details = {}) {
-  const id = new URLSearchParams(window.location.search).get('id') || '1';
+  // Only send each event type (with detailsKey) once per session
+  const detailsKey = details && details.name ? details.name : '';
+  if (hasEventBeenSent(eventType, detailsKey)) return;
+  markEventSent(eventType, detailsKey);
+  const sessionId = getSessionId();
+  const urlId = new URLSearchParams(window.location.search).get('id') || '1';
   const payload = {
+    session_id: sessionId,
+    time: Date.now(),
+    url_id: urlId,
     event: eventType,
-    id,
-    url: window.location.href,
-    timestamp: Date.now(),
     ...details
   };
   fetch(TRACKING_URL, {
@@ -1535,42 +1559,38 @@ function sendTrackingEvent(eventType, details = {}) {
   }).catch(() => {});
 }
 
-// Track session id on page load
+// Track session id on page load (first event)
 document.addEventListener('DOMContentLoaded', function() {
-  sendTrackingEvent('page_load');
+  sendTrackingEvent('session_start');
 });
-
-// Track focus events
-window.addEventListener('focus', function(e) {
-  sendTrackingEvent('window_focus');
-});
-window.addEventListener('blur', function(e) {
-  sendTrackingEvent('window_blur');
-});
+// Track focus events (only once per element per session)
 document.addEventListener('focusin', function(e) {
-  sendTrackingEvent('element_focus', { tag: e.target.tagName, name: e.target.name || e.target.id || '' });
-});
-
-// Track scroll events (throttled)
-let lastScrollTrack = 0;
-window.addEventListener('scroll', function() {
-  const now = Date.now();
-  if (now - lastScrollTrack > 1000) { // 1s throttle
-    sendTrackingEvent('scroll', { scrollY: window.scrollY });
-    lastScrollTrack = now;
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON')) {
+    sendTrackingEvent('focus', { tag: e.target.tagName, name: e.target.name || e.target.id || '' });
   }
 });
-
-// Track button clicks and input changes
+// Track scroll event (only once per session)
+window.addEventListener('scroll', function() {
+  sendTrackingEvent('scroll');
+});
+// Track button clicks (only once per button per session)
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('button, a, input[type="button"], input[type="submit"]');
   if (btn) {
-    sendTrackingEvent('button_click', { tag: btn.tagName, text: btn.innerText || btn.value || '', id: btn.id || '', class: btn.className || '' });
+    sendTrackingEvent('click', { tag: btn.tagName, name: btn.name || btn.id || '', text: btn.innerText || btn.value || '' });
   }
 });
+// Track input changes (only once per input per session)
 document.addEventListener('input', function(e) {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-    sendTrackingEvent('input', { tag: e.target.tagName, name: e.target.name || e.target.id || '', value: e.target.value });
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
+    sendTrackingEvent('input', { tag: e.target.tagName, name: e.target.name || e.target.id || '' });
+  }
+});
+// Track language change (only once per session)
+document.addEventListener('click', function(e) {
+  const li = e.target.closest('li[data-lang]');
+  if (li) {
+    sendTrackingEvent('language_change', { lang: li.getAttribute('data-lang') });
   }
 });
 
