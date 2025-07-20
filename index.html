@@ -1532,13 +1532,30 @@ function sendTrackingEvent(eventType, details = {}) {
   const timestamp = Date.now();
   const eventJson = JSON.stringify({ event: eventType, ...details, timestamp });
   // Always send as array: [session_id, timestamp, id, eventJson]
-  const payload = [session_id, timestamp, id, eventJson];
+  const payload = {
+  session_id,
+  timestamp,
+  id,
+  event: eventType,
+  details
+};
+  console.log('[Tracking] Sending event:', payload);
   fetch(TRACKING_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    mode: 'no-cors'
-  }).catch(() => {});
+    body: JSON.stringify(payload)
+    // mode: 'no-cors' // Remove for debugging; add back in production if needed
+  })
+    .then(response => {
+      if (!response.ok) {
+        console.error('[Tracking] Network response was not ok:', response.status, response.statusText);
+      } else {
+        response.text().then(txt => console.log('[Tracking] Response:', txt));
+      }
+    })
+    .catch(err => {
+      console.error('[Tracking] Fetch error:', err);
+    });
 }
 
 // Track session id on page load
