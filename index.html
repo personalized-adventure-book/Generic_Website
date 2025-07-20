@@ -1691,7 +1691,9 @@ function startForm(formDataRaw) {
         infoList.style.listStyle = 'none';
         infoList.style.padding = '0';
         infoList.style.margin = '0 0 1.5rem 0';
+        let hasOrderInfo = false;
         Object.entries(formData).filter(([k]) => k !== 'experiences').forEach(([k, v]) => {
+          hasOrderInfo = true;
           const li = document.createElement('li');
           li.style.display = 'flex';
           li.style.alignItems = 'flex-start';
@@ -1700,6 +1702,7 @@ function startForm(formDataRaw) {
           li.innerHTML = `<span style="color:var(--clr-primary);font-weight:700;min-width:140px;display:inline-block;font-size:1.04em;">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}:</span><span style="color:#333;font-weight:600;font-size:1.04em;">${Array.isArray(v) ? v.join(", ") : v}</span>`;
           infoList.appendChild(li);
         });
+        // Always append the infoList, even if empty, to keep structure consistent
         reviewForm.appendChild(infoList);
         // Experiences summary (if any)
         if (Array.isArray(formData.experiences) && formData.experiences.length) {
