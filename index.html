@@ -1450,7 +1450,6 @@
   </footer>
 <script>
 // Cache homepage data for instant reload
-let homepageRowCache = null;
 const HEADER_HEIGHT = 90; // px, adjust if your sticky header is taller/shorter
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId);
@@ -2437,6 +2436,8 @@ function startForm(formDataRaw) {
 
   renderStep(currentStep);
 }
+let homepageRowCache = null;
+let homepageFormData = null;
 function init(row) {
   // Cache homepage data for instant reload
   homepageRowCache = row;
@@ -2452,6 +2453,9 @@ function init(row) {
     console.error("Invalid JSON format:", e, row[0]);
     return;
   }
+
+  // Store form data globally for Start button
+  homepageFormData = row[1];
 
   // --- Hero ---
   const hero = data.hero || {};
@@ -2573,8 +2577,8 @@ function init(row) {
   const startButton = document.querySelector(".btn");
   if (startButton) {
     startButton.onclick = () => {
-      if (typeof row[1] === "string") {
-        startForm(row[1]);
+      if (typeof homepageFormData === "string") {
+        startForm(homepageFormData);
       } else {
         alert("Form data is not available.");
       }
