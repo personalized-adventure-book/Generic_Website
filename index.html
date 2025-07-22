@@ -1630,6 +1630,14 @@ document.addEventListener('click', function(e) {
   }
   function setLangBtnLabel(langNum) {
     langBtn.innerHTML = `🌐 ${langNames[langNum] || 'English'} ▼`;
+    // Set direction and alignment for Arabic
+    if (langNum === 4) {
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.body.style.textAlign = 'right';
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+      document.body.style.textAlign = 'left';
+    }
   }
   // Determine the id group (1-4 or 5-8) at page load
   const initialId = parseInt(getCurrentId(), 10);
@@ -1659,7 +1667,7 @@ document.addEventListener('click', function(e) {
       langBtn.setAttribute('aria-expanded', 'false');
     }
   });
-  // Set initial label based on current id
+  // Set initial label and direction based on current id
   let langNum = 1;
   if (initialId === 2) langNum = 2;
   else if (initialId === 3) langNum = 3;
