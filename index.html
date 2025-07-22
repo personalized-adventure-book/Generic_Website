@@ -1477,6 +1477,56 @@
     .lang-btn { font-size: 0.97rem; padding: 0.4rem 0.8rem; min-width: 90px; }
     .lang-options { min-width: 100px; }
     }
+    /* --- Responsive Menu Styles --- */
+    #nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      margin-left: auto;
+      font-weight: 600;
+      color: var(--clr-text);
+    }
+    #nav-links a {
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      transition: background var(--transition), color var(--transition);
+      position: relative;
+      display: inline-block;
+      font-size: 1.05rem;
+    }
+    #nav-links a:hover, #nav-links a:focus {
+      color: #fff;
+      background: linear-gradient(90deg, var(--clr-primary), var(--clr-secondary));
+      outline: none;
+      box-shadow: 0 2px 8px rgba(122, 92, 255, 0.10);
+    }
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      margin-left: 1rem;
+    }
+    @media (max-width: 768px) {
+      #nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        z-index: 100;
+      }
+      #nav-links.active {
+        display: flex;
+      }
+      .menu-toggle {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1495,9 +1545,12 @@
 
     <header>
         <a href="#" id="site-logo" style="text-decoration:none;"><h1 id="site-title">One Print Away!</h1></a>
-        <nav id="nav-links" aria-label="Main Navigation"></nav>
+        <nav id="nav-links" aria-label="Main Navigation"><a href="#features">Features</a><a href="#adventures">Adventures</a><a href="#examples">Examples</a></nav>
+        <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" style="display:none;">
+          <span class="menu-icon">&#9776;</span>
+        </button>
         <div class="lang-menu" id="lang-menu">
-        <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false">🌐 English ▼</button>
+        <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false">🌐 Italian ▼</button>
         <ul id="lang-options" class="lang-options" tabindex="-1" role="listbox" style="display:none;">
             <li data-lang="1" role="option">English</li>
             <li data-lang="2" role="option">French</li>
@@ -2407,8 +2460,7 @@ function startForm(formDataRaw) {
         return;
       }
 
-      // ...existing code for radio, adventure_selector, checkbox, tags, textarea, range, text, etc...
-      // Gender radio group
+      // --- Gender radio group ---
       if (field.type === "radio" && Array.isArray(field.options)) {
         const group = document.createElement("div");
         group.className = "form-radio-group";
