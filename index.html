@@ -1628,43 +1628,40 @@ document.addEventListener('click', function(e) {
     const url = new URL(window.location.href);
     return url.searchParams.get('id');
   }
-  // Translation strings for menu and static UI
+  // Translation dictionary for menu bar and UI elements
   const translations = {
-    1: {
-      nav: ['Features', 'Order', 'Contact'],
-      footer: '© 2025 Adventure Book. All rights reserved.',
-      cancelModalTitle: 'Cancel Order?',
-      cancelModalText: 'Are you sure you want to cancel your order and return to the homepage?',
-      cancelBtn: 'No, keep editing',
-      confirmBtn: 'Yes, cancel',
-      cta: 'Start Your Adventure'
+    1: { // English
+      menuHome: 'Home',
+      menuAbout: 'About',
+      menuContact: 'Contact',
+      menuOrder: 'Order',
+      menuLogin: 'Login',
+      menuLogout: 'Logout',
+      // Add more keys as needed
     },
-    2: {
-      nav: ['Fonctionnalités', 'Commander', 'Contact'],
-      footer: '© 2025 Livre d\'Aventure. Tous droits réservés.',
-      cancelModalTitle: 'Annuler la commande ?',
-      cancelModalText: 'Êtes-vous sûr de vouloir annuler votre commande et revenir à la page d\'accueil ?',
-      cancelBtn: 'Non, continuer',
-      confirmBtn: 'Oui, annuler',
-      cta: 'Commencez votre aventure'
+    2: { // French
+      menuHome: 'Accueil',
+      menuAbout: 'À propos',
+      menuContact: 'Contact',
+      menuOrder: 'Commander',
+      menuLogin: 'Connexion',
+      menuLogout: 'Déconnexion',
     },
-    3: {
-      nav: ['Caratteristiche', 'Ordina', 'Contatto'],
-      footer: '© 2025 Libro d\'Avventura. Tutti i diritti riservati.',
-      cancelModalTitle: 'Annulla ordine?',
-      cancelModalText: 'Sei sicuro di voler annullare l\'ordine e tornare alla home?',
-      cancelBtn: 'No, continua',
-      confirmBtn: 'Sì, annulla',
-      cta: 'Inizia la tua avventura'
+    3: { // Italian
+      menuHome: 'Home',
+      menuAbout: 'Chi siamo',
+      menuContact: 'Contatto',
+      menuOrder: 'Ordina',
+      menuLogin: 'Accedi',
+      menuLogout: 'Esci',
     },
-    4: {
-      nav: ['المميزات', 'طلب', 'اتصل'],
-      footer: '© 2025 كتاب المغامرة. جميع الحقوق محفوظة.',
-      cancelModalTitle: 'إلغاء الطلب؟',
-      cancelModalText: 'هل أنت متأكد أنك تريد إلغاء طلبك والعودة إلى الصفحة الرئيسية؟',
-      cancelBtn: 'لا، استمر في التعديل',
-      confirmBtn: 'نعم، إلغاء',
-      cta: 'ابدأ مغامرتك'
+    4: { // Arabic
+      menuHome: 'الرئيسية',
+      menuAbout: 'حول',
+      menuContact: 'اتصل',
+      menuOrder: 'اطلب',
+      menuLogin: 'تسجيل الدخول',
+      menuLogout: 'تسجيل الخروج',
     }
   };
 
@@ -1678,42 +1675,24 @@ document.addEventListener('click', function(e) {
       document.documentElement.setAttribute('dir', 'ltr');
       document.body.style.textAlign = 'left';
     }
-    applyTranslations(langNum);
-  }
-
-  // Apply translations to menu bar and static UI
-  function applyTranslations(langNum) {
-    const t = translations[langNum] || translations[1];
-    // Menu bar
-    const nav = document.getElementById('nav-links');
-    if (nav) {
-      nav.innerHTML = '';
-      t.nav.forEach((txt, i) => {
-        const link = document.createElement('a');
-        link.href = ['#home', '#features', '#order', '#contact'][i];
-        link.innerText = txt;
-        nav.appendChild(link);
-      });
+    // Translate menu bar and UI elements (except logo)
+    const t = translations[langNum];
+    if (t) {
+      // Example: update menu bar items by id or class
+      const homeEl = document.getElementById('menu-home');
+      if (homeEl) homeEl.textContent = t.menuHome;
+      const aboutEl = document.getElementById('menu-about');
+      if (aboutEl) aboutEl.textContent = t.menuAbout;
+      const contactEl = document.getElementById('menu-contact');
+      if (contactEl) contactEl.textContent = t.menuContact;
+      const orderEl = document.getElementById('menu-order');
+      if (orderEl) orderEl.textContent = t.menuOrder;
+      const loginEl = document.getElementById('menu-login');
+      if (loginEl) loginEl.textContent = t.menuLogin;
+      const logoutEl = document.getElementById('menu-logout');
+      if (logoutEl) logoutEl.textContent = t.menuLogout;
+      // Add more elements as needed
     }
-    // Footer
-    const footer = document.getElementById('footer-content');
-    if (footer) footer.innerText = t.footer;
-    // Cancel modal
-    const modal = document.getElementById('cancel-modal');
-    if (modal) {
-      const title = modal.querySelector('h3');
-      const text = modal.querySelector('p');
-      const btns = modal.querySelectorAll('.modal-btn');
-      if (title) title.innerText = t.cancelModalTitle;
-      if (text) text.innerText = t.cancelModalText;
-      if (btns && btns.length === 2) {
-        btns[0].innerText = t.cancelBtn;
-        btns[1].innerText = t.confirmBtn;
-      }
-    }
-    // Floating CTA
-    const ctaBtn = document.querySelector('.floating-cta');
-    if (ctaBtn) ctaBtn.title = t.cta;
   }
   // Determine the id group (1-4 or 5-8) at page load
   const initialId = parseInt(getCurrentId(), 10);
@@ -2704,20 +2683,7 @@ function init(row) {
   if (Array.isArray(data.features)) {
     const section = document.createElement("section");
     section.id = "features";
-    // Get current language
-    const urlId = new URLSearchParams(window.location.search).get('id') || '1';
-    let langNum = 1;
-    if (urlId === '2' || urlId === '6') langNum = 2;
-    else if (urlId === '3' || urlId === '7') langNum = 3;
-    else if (urlId === '4' || urlId === '8') langNum = 4;
-    // Use translated Features title
-    const translations = {
-      1: { features: 'Features' },
-      2: { features: 'Fonctionnalités' },
-      3: { features: 'Caratteristiche' },
-      4: { features: 'المميزات' }
-    };
-    section.innerHTML = `<h2>${translations[langNum].features}</h2>`;
+    section.innerHTML = `<h2>Features</h2>`;
     // Feature icons (fallback if not enough, will repeat)
     const icons = [
       '🧒', '👀', '📦', '🎨', '🚀', '🌟', '📖', '🦸', '🏰', '🌊', '🧚', '🦄', '🐉'
@@ -2739,7 +2705,7 @@ function init(row) {
     });
     section.appendChild(cards);
     main.appendChild(section);
-    // Remove nav link append to prevent duplication
+    nav.innerHTML += `<a href="#features">Features</a>`;
   }
 
   // --- Adventure Possibilities ---
@@ -2747,7 +2713,7 @@ function init(row) {
   if (adventures && Array.isArray(adventures.options || adventures.cards)) {
     const section = document.createElement("section");
     section.id = "adventures";
-    // Remove nav link append for Adventures to prevent duplication
+    nav.innerHTML += `<a href='#adventures'>Adventures</a>`;
     section.innerHTML = `<h2>${adventures.title}</h2>${adventures.subtitle ? `<p>${adventures.subtitle}</p>` : ''}`;
     const icons = [
       '🚀', '🌳', '🏰', '🏴‍☠️', '🦸', '🌊', '🧚', '🦄', '🐉', '👑', '🪐', '🦜', '🦁', '🦋', '🧙', '🧜', '🦄', '🐲'
@@ -2777,7 +2743,7 @@ function init(row) {
   if (examples?.examples?.length) {
     const section = document.createElement("section");
     section.id = "examples";
-    // Remove nav link append for Examples to prevent duplication
+    nav.innerHTML += `<a href='#examples'>Examples</a>`;
     section.innerHTML = `<h2>${examples.title}</h2>${examples.subtitle ? `<p>${examples.subtitle}</p>` : ''}`;
     const icons = [
       '📖', '🌲', '🚀', '👑', '🦋', '🦸', '🧚', '🦄', '🐉', '🧙', '🧜', '🐲', '🦜', '🦁'
