@@ -2704,7 +2704,20 @@ function init(row) {
   if (Array.isArray(data.features)) {
     const section = document.createElement("section");
     section.id = "features";
-    section.innerHTML = `<h2>Features</h2>`;
+    // Get current language
+    const urlId = new URLSearchParams(window.location.search).get('id') || '1';
+    let langNum = 1;
+    if (urlId === '2' || urlId === '6') langNum = 2;
+    else if (urlId === '3' || urlId === '7') langNum = 3;
+    else if (urlId === '4' || urlId === '8') langNum = 4;
+    // Use translated Features title
+    const translations = {
+      1: { features: 'Features' },
+      2: { features: 'Fonctionnalités' },
+      3: { features: 'Caratteristiche' },
+      4: { features: 'المميزات' }
+    };
+    section.innerHTML = `<h2>${translations[langNum].features}</h2>`;
     // Feature icons (fallback if not enough, will repeat)
     const icons = [
       '🧒', '👀', '📦', '🎨', '🚀', '🌟', '📖', '🦸', '🏰', '🌊', '🧚', '🦄', '🐉'
@@ -2726,7 +2739,7 @@ function init(row) {
     });
     section.appendChild(cards);
     main.appendChild(section);
-    nav.innerHTML += `<a href="#features">Features</a>`;
+    // Remove nav link append to prevent duplication
   }
 
   // --- Adventure Possibilities ---
