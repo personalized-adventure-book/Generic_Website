@@ -1620,10 +1620,70 @@ document.addEventListener('click', function(e) {
   const langMenu = document.getElementById('lang-menu');
   const langNames = {
     1: 'English',
-    2: 'French',
-    3: 'Italian',
-    4: 'Arabic'
+    2: 'Français',
+    3: 'Italiano',
+    4: 'العربية'
   };
+
+  // Translation strings for menu bar and key UI elements
+  const translations = {
+    1: {
+      menuHome: 'Home',
+      menuAbout: 'About',
+      menuContact: 'Contact',
+      menuOrder: 'Order',
+      menuAdventure: 'Adventure Book',
+      footer: '© 2025 Adventure Book. All rights reserved.',
+      cta: 'Start Your Adventure'
+    },
+    2: {
+      menuHome: 'Accueil',
+      menuAbout: 'À propos',
+      menuContact: 'Contact',
+      menuOrder: 'Commander',
+      menuAdventure: 'Livre d\'Aventure',
+      footer: '© 2025 Livre d\'Aventure. Tous droits réservés.',
+      cta: 'Commencez votre aventure'
+    },
+    3: {
+      menuHome: 'Home',
+      menuAbout: 'Chi siamo',
+      menuContact: 'Contatto',
+      menuOrder: 'Ordina',
+      menuAdventure: 'Libro d\'Avventura',
+      footer: '© 2025 Libro d\'Avventura. Tutti i diritti riservati.',
+      cta: 'Inizia la tua avventura'
+    },
+    4: {
+      menuHome: 'الرئيسية',
+      menuAbout: 'حول',
+      menuContact: 'اتصل',
+      menuOrder: 'اطلب',
+      menuAdventure: 'كتاب المغامرة',
+      footer: '© 2025 كتاب المغامرة. جميع الحقوق محفوظة.',
+      cta: 'ابدأ مغامرتك'
+    }
+  };
+
+  function applyTranslations(langNum) {
+    const t = translations[langNum] || translations[1];
+    // Example selectors, update as needed for your actual menu bar structure
+    const homeEl = document.getElementById('menu-home');
+    const aboutEl = document.getElementById('menu-about');
+    const contactEl = document.getElementById('menu-contact');
+    const orderEl = document.getElementById('menu-order');
+    const adventureEl = document.getElementById('site-logo');
+    const footerEl = document.getElementById('footer-content');
+    const ctaEl = document.querySelector('.floating-cta');
+    if (homeEl) homeEl.textContent = t.menuHome;
+    if (aboutEl) aboutEl.textContent = t.menuAbout;
+    if (contactEl) contactEl.textContent = t.menuContact;
+    if (orderEl) orderEl.textContent = t.menuOrder;
+    if (adventureEl) adventureEl.textContent = t.menuAdventure;
+    if (footerEl) footerEl.textContent = t.footer;
+    if (ctaEl) ctaEl.title = t.cta;
+    if (ctaEl) ctaEl.textContent = '✨'; // Keep icon, but update title
+  }
   function getCurrentId() {
     const url = new URL(window.location.href);
     return url.searchParams.get('id');
@@ -1638,6 +1698,7 @@ document.addEventListener('click', function(e) {
       document.documentElement.setAttribute('dir', 'ltr');
       document.body.style.textAlign = 'left';
     }
+    applyTranslations(langNum);
   }
   // Determine the id group (1-4 or 5-8) at page load
   const initialId = parseInt(getCurrentId(), 10);
