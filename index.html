@@ -1494,18 +1494,24 @@
   </div>
 
     <header>
-        <a href="#" id="site-logo" style="text-decoration:none;"><h1 id="site-title">One Print Away!</h1></a>
-        <nav id="nav-links" aria-label="Main Navigation"></nav>
-        <div class="lang-menu" id="lang-menu">
-        <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false">🌐 English ▼</button>
-        <ul id="lang-options" class="lang-options" tabindex="-1" role="listbox" style="display:none;">
-            <li data-lang="1" role="option">English</li>
-            <li data-lang="2" role="option">French</li>
-            <li data-lang="3" role="option">Italian</li>
-            <li data-lang="4" role="option">Arabic</li>
-        </ul>
-        </div>
-    </header>
+  <div>
+    <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false">🌐 English ▼</button>
+    <ul id="lang-options" class="lang-options" tabindex="-1" role="listbox" style="display:none;">
+      <li data-lang="1" role="option">English</li>
+      <li data-lang="2" role="option">French</li>
+      <li data-lang="3" role="option">Italian</li>
+      <li data-lang="4" role="option">Arabic</li>
+    </ul>
+    <nav class="menu-bar">
+      <ul>
+        <li id="menu-home">Home</li>
+        <li id="menu-about">About</li>
+        <li id="menu-contact">Contact</li>
+        <li id="menu-order">Order</li>
+      </ul>
+    </nav>
+  </div>
+</header>
   <main id="main-content">
     <!-- Hero and sections will be injected here -->
     <div class="section-divider"></div>
@@ -1619,13 +1625,8 @@ document.addEventListener('click', function(e) {
   const langOptions = document.getElementById('lang-options');
   const langMenu = document.getElementById('lang-menu');
   const langNames = {
-    1: 'English',
-    2: 'Français',
-    3: 'Italiano',
-    4: 'العربية'
-  };
-
-  // Translation strings for menu bar and key UI elements
+    1: 'English'};
+    
   const translations = {
     1: {
       menuHome: 'Home',
