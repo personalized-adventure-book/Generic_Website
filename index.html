@@ -1494,24 +1494,18 @@
   </div>
 
     <header>
-  <div>
-    <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false">🌐 English ▼</button>
-    <ul id="lang-options" class="lang-options" tabindex="-1" role="listbox" style="display:none;">
-      <li data-lang="1" role="option">English</li>
-      <li data-lang="2" role="option">French</li>
-      <li data-lang="3" role="option">Italian</li>
-      <li data-lang="4" role="option">Arabic</li>
-    </ul>
-    <nav class="menu-bar">
-      <ul>
-        <li id="menu-home">Home</li>
-        <li id="menu-about">About</li>
-        <li id="menu-contact">Contact</li>
-        <li id="menu-order">Order</li>
-      </ul>
-    </nav>
-  </div>
-</header>
+        <a href="#" id="site-logo" style="text-decoration:none;"><h1 id="site-title">One Print Away!</h1></a>
+        <nav id="nav-links" aria-label="Main Navigation"></nav>
+        <div class="lang-menu" id="lang-menu">
+        <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false">🌐 English ▼</button>
+        <ul id="lang-options" class="lang-options" tabindex="-1" role="listbox" style="display:none;">
+            <li data-lang="1" role="option">English</li>
+            <li data-lang="2" role="option">French</li>
+            <li data-lang="3" role="option">Italian</li>
+            <li data-lang="4" role="option">Arabic</li>
+        </ul>
+        </div>
+    </header>
   <main id="main-content">
     <!-- Hero and sections will be injected here -->
     <div class="section-divider"></div>
@@ -1625,70 +1619,55 @@ document.addEventListener('click', function(e) {
   const langOptions = document.getElementById('lang-options');
   const langMenu = document.getElementById('lang-menu');
   const langNames = {
-    1: 'English'};
-    
-  const translations = {
-    1: {
-      menuHome: 'Home',
-      menuAbout: 'About',
-      menuContact: 'Contact',
-      menuOrder: 'Order',
-      menuAdventure: 'Adventure Book',
-      footer: '© 2025 Adventure Book. All rights reserved.',
-      cta: 'Start Your Adventure'
-    },
-    2: {
-      menuHome: 'Accueil',
-      menuAbout: 'À propos',
-      menuContact: 'Contact',
-      menuOrder: 'Commander',
-      menuAdventure: 'Livre d\'Aventure',
-      footer: '© 2025 Livre d\'Aventure. Tous droits réservés.',
-      cta: 'Commencez votre aventure'
-    },
-    3: {
-      menuHome: 'Home',
-      menuAbout: 'Chi siamo',
-      menuContact: 'Contatto',
-      menuOrder: 'Ordina',
-      menuAdventure: 'Libro d\'Avventura',
-      footer: '© 2025 Libro d\'Avventura. Tutti i diritti riservati.',
-      cta: 'Inizia la tua avventura'
-    },
-    4: {
-      menuHome: 'الرئيسية',
-      menuAbout: 'حول',
-      menuContact: 'اتصل',
-      menuOrder: 'اطلب',
-      menuAdventure: 'كتاب المغامرة',
-      footer: '© 2025 كتاب المغامرة. جميع الحقوق محفوظة.',
-      cta: 'ابدأ مغامرتك'
-    }
+    1: 'English',
+    2: 'French',
+    3: 'Italian',
+    4: 'Arabic'
   };
-
-  function applyTranslations(langNum) {
-    const t = translations[langNum] || translations[1];
-    // Example selectors, update as needed for your actual menu bar structure
-    const homeEl = document.getElementById('menu-home');
-    const aboutEl = document.getElementById('menu-about');
-    const contactEl = document.getElementById('menu-contact');
-    const orderEl = document.getElementById('menu-order');
-    const adventureEl = document.getElementById('site-logo');
-    const footerEl = document.getElementById('footer-content');
-    const ctaEl = document.querySelector('.floating-cta');
-    if (homeEl) homeEl.textContent = t.menuHome;
-    if (aboutEl) aboutEl.textContent = t.menuAbout;
-    if (contactEl) contactEl.textContent = t.menuContact;
-    if (orderEl) orderEl.textContent = t.menuOrder;
-    if (adventureEl) adventureEl.textContent = t.menuAdventure;
-    if (footerEl) footerEl.textContent = t.footer;
-    if (ctaEl) ctaEl.title = t.cta;
-    if (ctaEl) ctaEl.textContent = '✨'; // Keep icon, but update title
-  }
   function getCurrentId() {
     const url = new URL(window.location.href);
     return url.searchParams.get('id');
   }
+  // Translation strings for menu and static UI
+  const translations = {
+    1: {
+      nav: ['Home', 'Features', 'Order', 'Contact'],
+      footer: '© 2025 Adventure Book. All rights reserved.',
+      cancelModalTitle: 'Cancel Order?',
+      cancelModalText: 'Are you sure you want to cancel your order and return to the homepage?',
+      cancelBtn: 'No, keep editing',
+      confirmBtn: 'Yes, cancel',
+      cta: 'Start Your Adventure'
+    },
+    2: {
+      nav: ['Accueil', 'Fonctionnalités', 'Commander', 'Contact'],
+      footer: '© 2025 Livre d\'Aventure. Tous droits réservés.',
+      cancelModalTitle: 'Annuler la commande ?',
+      cancelModalText: 'Êtes-vous sûr de vouloir annuler votre commande et revenir à la page d\'accueil ?',
+      cancelBtn: 'Non, continuer',
+      confirmBtn: 'Oui, annuler',
+      cta: 'Commencez votre aventure'
+    },
+    3: {
+      nav: ['Home', 'Caratteristiche', 'Ordina', 'Contatto'],
+      footer: '© 2025 Libro d\'Avventura. Tutti i diritti riservati.',
+      cancelModalTitle: 'Annulla ordine?',
+      cancelModalText: 'Sei sicuro di voler annullare l\'ordine e tornare alla home?',
+      cancelBtn: 'No, continua',
+      confirmBtn: 'Sì, annulla',
+      cta: 'Inizia la tua avventura'
+    },
+    4: {
+      nav: ['الرئيسية', 'المميزات', 'طلب', 'اتصل'],
+      footer: '© 2025 كتاب المغامرة. جميع الحقوق محفوظة.',
+      cancelModalTitle: 'إلغاء الطلب؟',
+      cancelModalText: 'هل أنت متأكد أنك تريد إلغاء طلبك والعودة إلى الصفحة الرئيسية؟',
+      cancelBtn: 'لا، استمر في التعديل',
+      confirmBtn: 'نعم، إلغاء',
+      cta: 'ابدأ مغامرتك'
+    }
+  };
+
   function setLangBtnLabel(langNum) {
     langBtn.innerHTML = `🌐 ${langNames[langNum] || 'English'} ▼`;
     // Set direction and alignment for Arabic
@@ -1700,6 +1679,41 @@ document.addEventListener('click', function(e) {
       document.body.style.textAlign = 'left';
     }
     applyTranslations(langNum);
+  }
+
+  // Apply translations to menu bar and static UI
+  function applyTranslations(langNum) {
+    const t = translations[langNum] || translations[1];
+    // Menu bar
+    const nav = document.getElementById('nav-links');
+    if (nav) {
+      nav.innerHTML = '';
+      t.nav.forEach((txt, i) => {
+        const link = document.createElement('a');
+        link.href = ['#home', '#features', '#order', '#contact'][i];
+        link.innerText = txt;
+        nav.appendChild(link);
+      });
+    }
+    // Footer
+    const footer = document.getElementById('footer-content');
+    if (footer) footer.innerText = t.footer;
+    // Cancel modal
+    const modal = document.getElementById('cancel-modal');
+    if (modal) {
+      const title = modal.querySelector('h3');
+      const text = modal.querySelector('p');
+      const btns = modal.querySelectorAll('.modal-btn');
+      if (title) title.innerText = t.cancelModalTitle;
+      if (text) text.innerText = t.cancelModalText;
+      if (btns && btns.length === 2) {
+        btns[0].innerText = t.cancelBtn;
+        btns[1].innerText = t.confirmBtn;
+      }
+    }
+    // Floating CTA
+    const ctaBtn = document.querySelector('.floating-cta');
+    if (ctaBtn) ctaBtn.title = t.cta;
   }
   // Determine the id group (1-4 or 5-8) at page load
   const initialId = parseInt(getCurrentId(), 10);
