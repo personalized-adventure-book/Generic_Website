@@ -1639,9 +1639,14 @@ document.addEventListener('click', function(e) {
       document.body.style.textAlign = 'left';
     }
   }
-  // Determine the id group (1-4 or 5-8) at page load
+  // Determine the id group (1-4, 5-8, or 9-12) at page load
   const initialId = parseInt(getCurrentId(), 10);
-  const idGroup = (initialId >= 5 && initialId <= 8) ? 5 : 1;
+  let idGroup = 1;
+  if (initialId >= 5 && initialId <= 8) {
+    idGroup = 5;
+  } else if (initialId >= 9 && initialId <= 12) {
+    idGroup = 9;
+  }
   langBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     const expanded = langBtn.getAttribute('aria-expanded') === 'true';
