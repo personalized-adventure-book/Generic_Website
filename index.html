@@ -2747,7 +2747,7 @@ function init(row) {
   if (adventures && Array.isArray(adventures.options || adventures.cards)) {
     const section = document.createElement("section");
     section.id = "adventures";
-    nav.innerHTML += `<a href='#adventures'>Adventures</a>`;
+    // Remove nav link append for Adventures to prevent duplication
     section.innerHTML = `<h2>${adventures.title}</h2>${adventures.subtitle ? `<p>${adventures.subtitle}</p>` : ''}`;
     const icons = [
       '🚀', '🌳', '🏰', '🏴‍☠️', '🦸', '🌊', '🧚', '🦄', '🐉', '👑', '🪐', '🦜', '🦁', '🦋', '🧙', '🧜', '🦄', '🐲'
@@ -2777,7 +2777,7 @@ function init(row) {
   if (examples?.examples?.length) {
     const section = document.createElement("section");
     section.id = "examples";
-    nav.innerHTML += `<a href='#examples'>Examples</a>`;
+    // Remove nav link append for Examples to prevent duplication
     section.innerHTML = `<h2>${examples.title}</h2>${examples.subtitle ? `<p>${examples.subtitle}</p>` : ''}`;
     const icons = [
       '📖', '🌲', '🚀', '👑', '🦋', '🦸', '🧚', '🦄', '🐉', '🧙', '🧜', '🐲', '🦜', '🦁'
