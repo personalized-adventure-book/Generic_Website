@@ -1628,43 +1628,6 @@ document.addEventListener('click', function(e) {
     const url = new URL(window.location.href);
     return url.searchParams.get('id');
   }
-  // Translation dictionary for menu bar and UI elements
-  const translations = {
-    1: { // English
-      menuHome: 'Home',
-      menuAbout: 'About',
-      menuContact: 'Contact',
-      menuOrder: 'Order',
-      menuLogin: 'Login',
-      menuLogout: 'Logout',
-      // Add more keys as needed
-    },
-    2: { // French
-      menuHome: 'Accueil',
-      menuAbout: 'À propos',
-      menuContact: 'Contact',
-      menuOrder: 'Commander',
-      menuLogin: 'Connexion',
-      menuLogout: 'Déconnexion',
-    },
-    3: { // Italian
-      menuHome: 'Home',
-      menuAbout: 'Chi siamo',
-      menuContact: 'Contatto',
-      menuOrder: 'Ordina',
-      menuLogin: 'Accedi',
-      menuLogout: 'Esci',
-    },
-    4: { // Arabic
-      menuHome: 'الرئيسية',
-      menuAbout: 'حول',
-      menuContact: 'اتصل',
-      menuOrder: 'اطلب',
-      menuLogin: 'تسجيل الدخول',
-      menuLogout: 'تسجيل الخروج',
-    }
-  };
-
   function setLangBtnLabel(langNum) {
     langBtn.innerHTML = `🌐 ${langNames[langNum] || 'English'} ▼`;
     // Set direction and alignment for Arabic
@@ -1674,83 +1637,6 @@ document.addEventListener('click', function(e) {
     } else {
       document.documentElement.setAttribute('dir', 'ltr');
       document.body.style.textAlign = 'left';
-    }
-    // Translate menu bar and UI elements (except logo)
-    const t = translations[langNum];
-    if (t) {
-      // Example: update menu bar items by id or class
-      const homeEl = document.getElementById('menu-home');
-      if (homeEl) homeEl.textContent = t.menuHome;
-      const aboutEl = document.getElementById('menu-about');
-      if (aboutEl) aboutEl.textContent = t.menuAbout;
-      const contactEl = document.getElementById('menu-contact');
-      if (contactEl) contactEl.textContent = t.menuContact;
-      const orderEl = document.getElementById('menu-order');
-      if (orderEl) orderEl.textContent = t.menuOrder;
-      const loginEl = document.getElementById('menu-login');
-      if (loginEl) loginEl.textContent = t.menuLogin;
-      const logoutEl = document.getElementById('menu-logout');
-      if (logoutEl) logoutEl.textContent = t.menuLogout;
-      // Add more elements as needed
-    }
-  }
-  // Determine the id group (1-4 or 5-8) at page load
-  const initialId = parseInt(getCurrentId(), 10);
-  const idGroup = (initialId >= 5 && initialId <= 8) ? 5 : 1;
-  langBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const expanded = langBtn.getAttribute('aria-expanded') === 'true';
-    langBtn.setAttribute('aria-expanded', !expanded);
-    langOptions.style.display = expanded ? 'none' : 'block';
-    if (!expanded) langOptions.focus();
-  });
-document.addEventListener('DOMContentLoaded', function() {
-  const langBtn = document.getElementById('lang-btn');
-  const langOptions = document.getElementById('lang-options');
-  const langMenu = document.getElementById('lang-menu');
-  const navLinks = document.getElementById('nav-links');
-  const langNames = {
-    1: 'English',
-    2: 'French',
-    3: 'Italian',
-    4: 'Arabic'
-  };
-  // Inject navigation links with unique IDs
-  navLinks.innerHTML = `
-    <a href="#home" id="nav-features">Features</a>
-    <a href="#order" id="nav-order">Order</a>
-    <a href="#contact" id="nav-contact">Contact</a>
-    <a href="#adventures" id="nav-adventures">Adventures</a>
-    <a href="#examples" id="nav-examples">Examples</a>
-  `;
-
-  function getCurrentId() {
-    const url = new URL(window.location.href);
-    return url.searchParams.get('id');
-  }
-  function setLangBtnLabel(langNum) {
-    langBtn.innerHTML = `🌐 ${langNames[langNum] || 'English'} ▼`;
-    // Set direction and alignment for Arabic
-    if (langNum === 4) {
-      document.documentElement.setAttribute('dir', 'rtl');
-      document.body.style.textAlign = 'right';
-    } else {
-      document.documentElement.setAttribute('dir', 'ltr');
-      document.body.style.textAlign = 'left';
-    }
-    // Translate navigation bar links (except logo)
-    const t = translations[langNum];
-    if (t) {
-      const navFeatures = document.getElementById('nav-features');
-      if (navFeatures) navFeatures.textContent = t.navFeatures;
-      const navOrder = document.getElementById('nav-order');
-      if (navOrder) navOrder.textContent = t.navOrder;
-      const navContact = document.getElementById('nav-contact');
-      if (navContact) navContact.textContent = t.navContact;
-      const navAdventures = document.getElementById('nav-adventures');
-      if (navAdventures) navAdventures.textContent = t.navAdventures;
-      const navExamples = document.getElementById('nav-examples');
-      if (navExamples) navExamples.textContent = t.navExamples;
     }
   }
   // Determine the id group (1-4 or 5-8) at page load
@@ -1792,6 +1678,57 @@ document.addEventListener('DOMContentLoaded', function() {
   else if (initialId === 8) langNum = 4;
   setLangBtnLabel(langNum);
 });
+// Cache homepage data for instant reload
+let homepageRowCache = null;
+const HEADER_HEIGHT = 90; // px, adjust if your sticky header is taller/shorter
+function scrollToSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (section) {
+    const y = section.getBoundingClientRect().top + window.pageYOffset - HEADER_HEIGHT;
+    window.scrollTo({top: y, behavior: 'smooth'});
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  // Always scroll to top on first load
+  window.scrollTo({top:0,behavior:'auto'});
+  const logo = document.getElementById('site-logo');
+  if (logo) {
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({top:0,behavior:'smooth'});
+      // Clear main content and nav to prevent duplication or lingering forms
+      const main = document.getElementById('main-content');
+      const nav = document.getElementById('nav-links');
+      if (main) main.innerHTML = '<div class="section-divider"></div>';
+      if (nav) nav.innerHTML = '';
+      // If homepage data is cached, re-render instantly
+      if (homepageRowCache && typeof init === 'function') {
+        init(homepageRowCache);
+      } else if (typeof init === 'function') {
+        // Fallback: fetch again if not cached
+        const id = new URLSearchParams(location.search).get("id") || "1";
+        const s = document.createElement("script");
+        s.src = "https://script.google.com/macros/s/AKfycbxomnBCc-HtyYOogmi0ljnrK_SLyWAIM57TkUfemDO1Ou0lo9_08DnuMKnW-7qF3wdB/exec?id=" + encodeURIComponent(id) + "&callback=init&_=" + Date.now();
+        document.body.appendChild(s);
+      }
+    });
+  }
+  // Delegate menu bar clicks for smooth scroll and form exit
+  document.body.addEventListener('click', function(e) {
+    const navLink = e.target.closest('nav a[href^="#"]');
+    if (navLink) {
+      e.preventDefault();
+      const hash = navLink.getAttribute('href').replace('#','');
+      // If not on homepage, go to homepage first, then scroll
+      const main = document.getElementById('main-content');
+      const nav = document.getElementById('nav-links');
+      if (!main || !nav || !main.querySelector('section')) {
+        // Simulate logo click to reload homepage, then scroll after render
+        if (logo) logo.click();
+        setTimeout(() => scrollToSection(hash), 600);
+      } else {
+        scrollToSection(hash);
+      }
     }
   });
 });
